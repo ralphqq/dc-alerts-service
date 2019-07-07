@@ -12,6 +12,14 @@ class RegisterEmailView(View):
     def post(self, request):
         email = request.POST['email_address']
         new_user = Subscriber.objects.create(email=email.strip())
+
+        confirmation_link = create_confirmation_link(
+            request=request,
+            user=new_user,
+            viewname='verify_email',
+            external=True
+        )
+
         return redirect(reverse('confirm_email_page'))
 
 
