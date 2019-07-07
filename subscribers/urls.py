@@ -14,4 +14,9 @@ urlpatterns = [
         views.ConfirmEmailPageView.as_view(),
         name='confirm_email_page'
     ),
+    path(
+        'verify/<str:uid>/<str:token>',
+        views.VerifyEmailView.as_view(),
+        name='verify_email'
+    ),
 ]

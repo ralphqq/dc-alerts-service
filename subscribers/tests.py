@@ -3,6 +3,7 @@ from django.shortcuts import reverse
 from django.test import TestCase
 
 from subscribers.models import Subscriber
+from subscribers.utils import create_confirmation_link
 
 
 class SubscriberModelTest(TestCase):
@@ -71,3 +72,26 @@ class RegisterEmailViewTest(TestCase):
         new_user = Subscriber.objects.get(email=test_email_address)
 
         self.assertEqual(new_user.email, test_email_address)
+
+
+class ActivateUserTest(TestCase):
+
+    def test_activation_uid_and_token(self):
+        test_email_address = 'newusernow@email.com'
+        response = self.client.post(
+            reverse('register_new_email'),
+            data={'email_address': test_email_address}
+        )
+        new_user = Subscriber.objects.get(email=test_email_address)
+        request = response.wsgi_request
+
+        confirmation_link = create_confirmation_link(
+            request=request,
+            user=new_user,
+            viewname='verify_email',
+            external=False
+        )
+
+        verification_response = self.client.get(confirmation_link)
+        this_user = Subscriber.objects.get(email=test_email_address)
+        self.assertIs(this_user.is_active, True)
