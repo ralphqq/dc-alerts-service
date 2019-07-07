@@ -8,6 +8,7 @@ from selenium.webdriver.common.keys import Keys
 
 
 MAX_WAIT = 10   # seconds
+SAMPLE_RECIPIENT_EMAIL = os.environ.get('SAMPLE_RECIPIENT_EMAIL', 'validemail@example.com')
 
 
 class NewVisitorTest(StaticLiveServerTestCase):
@@ -41,13 +42,13 @@ class NewVisitorTest(StaticLiveServerTestCase):
         )
 
         # She provides a valid email address
-        valid_email = 'validemail@example.com'
+        valid_email = SAMPLE_RECIPIENT_EMAIL
         email_input_box.send_keys(valid_email)
 
         # She hits enter and a page loads asking to click
         # the link in the email we sent
         email_input_box.send_keys(Keys.ENTER)
-        time.sleep(1)
+        time.sleep(MAX_WAIT)
         header_text = self.browser.find_element_by_tag_name('h1')
         self.assertIn(
             'Confirm your email',

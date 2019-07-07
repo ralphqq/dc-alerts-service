@@ -2,6 +2,8 @@ from django.http import HttpResponse
 from django.shortcuts import redirect, render, reverse
 from django.views import View
 
+from email_alerts.models import TransactionalEmail
+from email_alerts.utils import send_email
 from subscribers.models import Subscriber
 from subscribers.tokens import account_activation_token
 from subscribers.utils import create_confirmation_link, get_uid
@@ -19,6 +21,18 @@ class RegisterEmailView(View):
             viewname='verify_email',
             external=True
         )
+
+        confirmation_email = TransactionalEmail.objects.create(
+            recipient=new_user,
+            subject_line='Please confirm your email address'
+        )
+
+        send_email(
+            email_object=confirmation_email,
+            email_template='email_alerts/confirmation_email.html',
+            context={'confirmation_link': confirmation_link}
+        )
+        confirmation_email.save()
 
         return redirect(reverse('confirm_email_page'))
 
