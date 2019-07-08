@@ -1,7 +1,8 @@
-{% autoescape off %}
+{% extends 'base_email.html' %}
+{% block message_body %}
 You've successfully signed up for DC Alerts. Your email address {{ user.email }} has been verified, and we've added you to our mailing list.
 
 You'll be receiving up-to-date email notifications on water and power outages in your area.
 
 To make sure you don't miss any email updates from DC Alerts, please add us to your address book.
-{% endautoescape %}
+{% endblock %}

@@ -1,7 +1,13 @@
-{% autoescape off %}
+{% extends 'base_email.html' %}
+{% block message_body %}
 Thanks for signing up to DC Alerts! Please click the link below to confirm your email address.
 
 {{ confirmation_link }}
 
-Thanks again.
-{% endautoescape %}
+If you didn't register to DC Alerts, please ignore this message.
+{% endblock %}
+{% block email_signature %}
+Best,
+
+The DC Alerts Team
+{% endblock %}
