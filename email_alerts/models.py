@@ -21,7 +21,7 @@ class EmailAlert(models.Model):
 
 
 class TransactionalEmail(models.Model):
-    recipient = models.OneToOneField(
+    recipient = models.ForeignKey(
         'subscribers.Subscriber',
         on_delete=models.CASCADE,
         null=True

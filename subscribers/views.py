@@ -58,7 +58,18 @@ class VerifyEmailView(View):
 
         if user is not None and account_activation_token.check_token(user, token):
             user.is_active = True
-            user.save()
+
+            welcome_email = TransactionalEmail.objects.create(
+                recipient=user,
+                subject_line='Welcome to DC Alerts!'
+            )
+
+            send_email(
+                email_object=welcome_email,
+                email_template='email_alerts/welcome_email.html',
+                context={'recipient': user}
+            )
+            welcome_email.save()
             return redirect(reverse(
                 'verification_results',
                 kwargs={'results': 'success'}
