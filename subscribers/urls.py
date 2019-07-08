@@ -19,4 +19,9 @@ urlpatterns = [
         views.VerifyEmailView.as_view(),
         name='verify_email'
     ),
+    path(
+        'verification/<str:results>/',
+        views.VerificationResultsPageView.as_view(),
+        name='verification_results'
+    )
 ]

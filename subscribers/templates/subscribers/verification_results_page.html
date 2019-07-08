@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block page_title %}
+{% if results == 'success' %}
+Success! Your email address has been verified
+{% else %}
+Unable to confirm your email address
+{% endif %}
+{% endblock %}
+
+{% block page_content %}
+<div class="row">
+  <div class="col-md-6">
+    {% if results == 'success' %}
+    <h1>Success! Your email address has been verified</h1>
+    <p>Congratulations! You've successfully signed up to DC Alerts. You will soon start receiving email notifications on water and power outages in the city.</p>
+    <p>To make sure you don't miss any email updates from DC Alerts, please <a href="#">add us to your address book</a>.</p>
+    {% else %}
+    <h1>Unable to verify your email</h1>
+    <p>We're sorry, but we seem to be having problems verifying the email address you registered.</p>
+    <p>Please check that you've submitted a valid email address or try signing up using a different email account.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

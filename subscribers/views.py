@@ -59,7 +59,24 @@ class VerifyEmailView(View):
         if user is not None and account_activation_token.check_token(user, token):
             user.is_active = True
             user.save()
-            return HttpResponse('Success')
+            return redirect(reverse(
+                'verification_results',
+                kwargs={'results': 'success'}
+            ))
 
         else:
-            return HttpResponse('Failed')
+            return redirect(reverse(
+                'verification_results',
+                kwargs={'results': 'failed'}
+            ))
+
+
+class VerificationResultsPageView(View):
+
+    def get(self, request, results):
+        if results == 'success' or results == 'failed':
+            return render(
+                request,
+                'subscribers/verification_results_page.html',
+                {'results': results}
+            )
