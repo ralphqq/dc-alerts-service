@@ -20,16 +20,38 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Load environment variables from .env file
 load_dotenv(os.path.join(BASE_DIR, '.env'))
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/2.2/howto/deployment/checklist/
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '6#r^$m&w9f1fxw^jw71rdrv_mq5&zxv&sv%u_)u8tv7kque#cx'
+if 'DJANGO_DEBUG_FALSE' in os.environ:
+    # Production settings
+    DEBUG = False
+    SECRET_KEY = os.environ['DJANGO_SECRET_KEY']
+    ALLOWED_HOSTS = [os.environ['SITENAME']]
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_USE_TLS = True  
+    EMAIL_HOST = os.environ.get('EMAIL_HOST')
+    EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
+    EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
+    EMAIL_PORT = int(os.environ.get('EMAIL_PORT'))
 
-ALLOWED_HOSTS = []
+else:
+    # Quick-start development settings - unsuitable for production
+    # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
+
+    # SECURITY WARNING: keep the secret key used in production secret!
+    SECRET_KEY = '4+0!t6$#z^4y!ur2i^2*+&y5t@k84v_7d0(8=_pdz--6-5r%sa'
+
+    # SECURITY WARNING: don't run with debug turned on in production!
+    DEBUG = True
+
+    ALLOWED_HOSTS = ['*']
+
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_USE_TLS = True  
+    EMAIL_HOST = os.environ.get('TEST_EMAIL_HOST')
+    EMAIL_HOST_USER = os.environ.get('TEST_EMAIL_HOST_USER')
+    EMAIL_HOST_PASSWORD = os.environ.get('TEST_EMAIL_HOST_PASSWORD')
+    EMAIL_PORT = int(os.environ.get('TEST_EMAIL_PORT'))
 
 
 # Application definition
@@ -129,10 +151,3 @@ STATIC_URL = '/static/'
 # Custom user model
 AUTH_USER_MODEL = 'subscribers.Subscriber'
 
-# Email settings
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_USE_TLS = True  
-EMAIL_HOST = os.environ.get('EMAIL_HOST')
-EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
-EMAIL_PORT = int(os.environ.get('EMAIL_PORT'))
