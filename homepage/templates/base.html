@@ -1,5 +1,7 @@
 <!doctype html>
 <html lang="en">
+{% load static %}
+
   <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -9,39 +11,70 @@
 
     {% block page_styles %}
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <link rel="stylesheet" type="text/css" href="{% static 'css/custom.css' %}">
     {% endblock %}
   </head>
 
   <body>
-    {% block page_navbar %}
-    <div class="container">
-      <nav class="navbar navbar-expand-md bg-dark navbar-dark">
-        <a class="navbar-brand" href="#">DC Alerts</a>
+    <div class="wrap">
+      <header class="header">
+        <div class="container">
+          {% block page_navbar %}
+          <nav class="navbar navbar-expand-md bg-dark navbar-dark">
+            <a class="navbar-brand" href="#">DC Alerts</a>
 
-        <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbar" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
-          <span class="navbar-toggler-icon"></span>
-        </button>
+            <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbar" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+              <span class="navbar-toggler-icon"></span>
+            </button>
 
-        <div class="collapse navbar-collapse" id="navbar">
-          <ul class="navbar-nav">
-            <li class="nav-item active">
-              <a class="nav-link" href="#">Home</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#">About</a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" href="#">Manage</a>
-            </li>
-          </ul>
+            <div class="collapse navbar-collapse" id="navbar">
+              <ul class="navbar-nav">
+                <li class="nav-item active">
+                  <a class="nav-link" href="#">Home</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="#">About</a>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" href="#">Manage</a>
+                </li>
+              </ul>
+            </div>
+          </nav>
+          {% endblock %}
         </div>
-      </nav>
-    </div>
-    {% endblock %}
+      </header>
 
-    <!-- Main page content -->
-    <div class="container">
-    {% block page_content %}{% endblock %}
+      <!-- Main page content -->
+      <div class="content">
+        <main class="main-content" role="main">
+          <section class="main-section">
+            <div class="container">
+              {% block page_content %}{% endblock %}
+            </div>
+          </section>
+        </main>
+      </div>
+
+      <div class="stickyfooter">
+        <footer class="page-footer font-small blue">
+          <div class="container text-center text-md-left">
+            <div class="row">
+              <div class="col-md-12">
+                {% block page_footer_links %}
+                <ul class="list-inline">
+                  <li><a href="#">Terms of Service</a></li>
+                  <li><a href="#">Privacy Policy</a></li>
+                </ul>
+                {% endblock %}
+              </div>
+            </div>
+          </div>
+          <div class="footer-copyright text-center py-3">
+            © 2019 Copyright <a href="#">Larpov Technologies, Inc.</a>. All rights reserved.
+          </div>
+        </footer>
+      </div>
     </div>
 
     {% block page_scripts %}
