@@ -1,28 +1,16 @@
 import os
 import time
 
-from django.contrib.staticfiles.testing import StaticLiveServerTestCase
-from selenium import webdriver
-from selenium.common.exceptions import WebDriverException
 from selenium.webdriver.common.keys import Keys
+
+from func_tests.base import FunctionalTest
 
 
 MAX_WAIT = 30   # seconds
 SAMPLE_RECIPIENT_EMAIL = os.environ.get('SAMPLE_RECIPIENT_EMAIL', 'validemail@example.com')
 
 
-class NewVisitorTest(StaticLiveServerTestCase):
-
-    def setUp(self):
-        self.browser = webdriver.Firefox()
-        staging_server = os.environ.get('STAGING_SERVER')
-        if staging_server:
-            self.live_server_url = f'http://{staging_server}'
-
-
-    def tearDown(self):
-        self.browser.quit()
-
+class NewVisitorTest(FunctionalTest):
 
     def test_user_can_register_via_email(self):
         # User visits homepage
