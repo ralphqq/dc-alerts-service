@@ -21,6 +21,8 @@ def is_from_referrer(referrer_name, redirect_name=None):
             if prev_view is None:
                 raise PermissionDenied('')
 
+            del request.session['prev_view']
+
             if prev_view == referrer_name:
                 return func(request, *args, **kwargs)
 

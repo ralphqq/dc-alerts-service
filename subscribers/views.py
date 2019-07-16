@@ -48,7 +48,6 @@ class RegisterEmailView(View):
 class ConfirmEmailPageView(View):
 
     def get(self, request):
-        del request.session['prev_view']    # Delete prev_view in session
         return render(request, 'subscribers/confirm_email.html')
 
 
@@ -56,6 +55,7 @@ class VerifyEmailView(View):
 
     def get(self, request, uid, token):
         try:
+            request.session['prev_view'] = 'verify_email'
             uid_from_url = get_uid(uid)
             user = Subscriber.objects.get(pk=uid_from_url)
         except (TypeError, ValueError, OverflowError, Subscriber.DoesNotExist):
@@ -88,6 +88,7 @@ class VerifyEmailView(View):
             ))
 
 
+@method_decorator(is_from_referrer('verify_email'), name='dispatch')
 class VerificationResultsPageView(View):
 
     def get(self, request, results):

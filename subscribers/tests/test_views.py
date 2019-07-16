@@ -24,14 +24,15 @@ class RegisterEmailViewTest(TestCase):
             reverse('confirm_email_page')
         )
 
-        # if method is get, then redirect to home
-        response = self.client.get(reverse('register_new_email'))
-        self.assertRedirects(response, reverse('homepage'))
-
         # Also, make sure that prev_view item is deleted in landing page
         with self.assertRaises(KeyError):
             self.client.session['prev_view']
 
+        # if method is get, then redirect to home
+        response = self.client.get(reverse('register_new_email'))
+        self.assertRedirects(response, reverse('homepage'))
+
+        
     def test_saves_inactive_new_user_to_db(self):
         test_email_address = 'anotheruser@email.com'
         response = self.client.post(
