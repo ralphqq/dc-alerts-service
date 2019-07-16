@@ -1,9 +1,11 @@
 from django.http import HttpResponse
 from django.shortcuts import redirect, render, reverse
 from django.views import View
+from django.utils.decorators import method_decorator
 
 from email_alerts.models import TransactionalEmail
 from email_alerts.utils import send_email
+from subscribers.decorators import is_from_referrer
 from subscribers.models import Subscriber
 from subscribers.tokens import account_activation_token
 from subscribers.utils import create_confirmation_link, get_uid
@@ -34,6 +36,7 @@ class RegisterEmailView(View):
         )
         confirmation_email.save()
 
+        request.session['prev_view'] = 'register_new_email'
         return redirect(reverse('confirm_email_page'))
 
 
@@ -41,9 +44,11 @@ class RegisterEmailView(View):
         return redirect(reverse('homepage'))
 
 
+@method_decorator(is_from_referrer('register_new_email', ), name='dispatch')
 class ConfirmEmailPageView(View):
 
     def get(self, request):
+        del request.session['prev_view']    # Delete prev_view in session
         return render(request, 'subscribers/confirm_email.html')
 
 

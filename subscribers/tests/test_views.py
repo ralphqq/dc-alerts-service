@@ -1,3 +1,6 @@
+from unittest import skip
+
+from django.core.exceptions import PermissionDenied
 from django.shortcuts import reverse
 from django.test import TestCase
 
@@ -15,6 +18,7 @@ class RegisterEmailViewTest(TestCase):
             reverse('register_new_email'),
             data={'email_address': test_email_address}
         )
+
         self.assertRedirects(
             response,
             reverse('confirm_email_page')
@@ -24,6 +28,9 @@ class RegisterEmailViewTest(TestCase):
         response = self.client.get(reverse('register_new_email'))
         self.assertRedirects(response, reverse('homepage'))
 
+        # Also, make sure that prev_view item is deleted in landing page
+        with self.assertRaises(KeyError):
+            self.client.session['prev_view']
 
     def test_saves_inactive_new_user_to_db(self):
         test_email_address = 'anotheruser@email.com'
@@ -34,6 +41,18 @@ class RegisterEmailViewTest(TestCase):
         new_user = Subscriber.objects.get(email=test_email_address)
 
         self.assertEqual(new_user.email, test_email_address)
+
+
+class ConfirmEmailPageViewTest(TestCase):
+
+    def test_restricts_if_not_from_referrer(self):
+        response = self.client.get(reverse('confirm_email_page'))
+        session = self.client.session
+
+        with self.assertRaises(KeyError):
+            session['prev_view']
+
+        self.assertEqual(response.status_code, 403)
 
 
 class ActivateUserTest(TestCase):
