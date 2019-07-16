@@ -113,3 +113,20 @@ class ActivateUserTest(TestCase):
             verification_response,
             reverse('verification_results', kwargs={'results': 'failed'})
         )
+
+
+class VerificationResultsPageViewTest(TestCase):
+
+    def test_restricts_results_page_if_not_from_referrer(self):
+        for res in ['success', 'failed']:
+            response = self.client.get(
+                reverse(
+                    'verification_results',
+                    kwargs={'results': res})
+            )
+            session = self.client.session
+
+            with self.assertRaises(KeyError):
+                session['prev_view']
+
+            self.assertEqual(response.status_code, 403)
