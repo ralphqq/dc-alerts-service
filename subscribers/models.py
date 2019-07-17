@@ -3,6 +3,10 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, \
 from django.db import models
 from django.utils import timezone
 
+from email_alerts.utils import send_email
+from subscribers.utils import create_confirmation_link, get_uid
+from subscribers.tokens import account_activation_token
+
 
 class SubscriberManager(BaseUserManager):
 
@@ -50,3 +54,74 @@ class Subscriber(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.email
+
+
+    def create_and_send_confirmation_email(self, request):
+        """Creates and sends an email containing confirmation link.
+
+        Returns:
+            TransactionalEmail object: the confirmation email object
+        """
+
+        # Create the confirmation URL
+        confirmation_link = create_confirmation_link(
+            request=request,
+            user=self,
+            viewname='verify_email',
+            external=True
+        )
+
+        # Create the account confirmation email object
+        confirmation_email = self.transactionalemail_set.create(
+            subject_line='Please confirm your email address'
+        )
+
+        # Send the above email
+        send_email(
+            email_object=confirmation_email,
+            email_template='email_alerts/confirmation_email.html',
+            context={'confirmation_link': confirmation_link}
+        )
+
+        return confirmation_email
+
+
+    @staticmethod
+    def verify_confirmation_link(uid, token):
+        """Checks if uid and token point to a valid signup.
+
+        Returns:
+            Subscriber: the registering user if both uid and token are valid
+            None: otherwise
+        """
+        user = None
+        try:
+            uid_from_url = get_uid(uid)
+            user = Subscriber.objects.get(pk=uid_from_url)
+        except (TypeError, ValueError, OverflowError, Subscriber.DoesNotExist):
+            user = None
+
+        if user is not None and account_activation_token.check_token(user, token):
+            user.is_active = True
+            return user
+
+        return None
+
+
+    def create_and_send_welcome_email(self):
+        """Creates and sends out welcome email to user.
+
+        Returns:
+            TransactionalEmail object: the welcome email object
+        """
+        welcome_email = self.transactionalemail_set.create(
+            subject_line='Welcome to DC Alerts!'
+        )
+
+        send_email(
+            email_object=welcome_email,
+            email_template='email_alerts/welcome_email.html',
+            context={'recipient': self}
+        )
+
+        return welcome_email
