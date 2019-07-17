@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block page_title %}
+{% if results == 'success' %}
+You have successfully unsubscribed
+{% else %}
+Unable to process your request
+{% endif %}
+{% endblock %}
+
+{% block page_content %}
+<div class="row">
+  <div class="col-md-6">
+    {% if results == 'success' %}
+    <h1>You've successfully unsubscribed from DC Alerts</h1>
+    <p>We've finished processing your request to opt out of our mailing list. From now on, you'll no longer receive any email notifications from DC Alerts other than the opt-out message we just sent you.</p>
+    <p>Thanks. It was nice having you around.</p>
+    {% else %}
+    <h1>Unable to process your opt-out request</h1>
+    <p>We're sorry, but we seem to be having problems verifying your account.</p>
+    <p>Please make sure that you haven't tried opting out more than once.</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

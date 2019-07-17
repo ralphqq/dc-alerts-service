@@ -130,3 +130,60 @@ class VerificationResultsPageViewTest(TestCase):
                 session['prev_view']
 
             self.assertEqual(response.status_code, 403)
+
+
+class UnsubscribeUserViewTest(TestCase):
+
+    def test_user_opt_out_flow(self):
+        # Create confirmed user
+        test_email_address = 'foo@xmail.com'
+        user = Subscriber.objects.create(email=test_email_address)
+        user.is_active = True
+        user.save()
+
+        # Get a request object
+        response = self.client.get(reverse('homepage')) # Could be any view
+        request = response.wsgi_request
+
+        # Create an opt out URL
+        unsubscribe_link = create_secure_link(
+            request=request,
+            user=user,
+            viewname='unsubscribe_user',
+            external=True
+        )
+
+        # Unsubscribe the user
+        response_unsub = self.client.get(unsubscribe_link)
+
+        # Check the user object
+        this_user = Subscriber.objects.get(email=test_email_address)
+        self.assertIs(this_user.is_active, False)
+
+        # Redirect to successful opt out page
+        self.assertRedirects(
+            response_unsub,
+            reverse('unsubscribe_results', kwargs={'results': 'success'})
+        )
+
+        # Check if prev_vew is deleted
+        session = self.client.session
+        with self.assertRaises(KeyError):
+            session['prev_view']
+
+
+class UnsubscribeUserPageViewTest(TestCase):
+
+    def test_blocks_if_not_from_referrer(self):
+        for res in ['success', 'failed']:
+            response = self.client.get(
+                reverse(
+                    'unsubscribe_results',
+                    kwargs={'results': res})
+            )
+            session = self.client.session
+
+            with self.assertRaises(KeyError):
+                session['prev_view']
+
+            self.assertEqual(response.status_code, 403)

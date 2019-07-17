@@ -88,19 +88,28 @@ class UnsubscribeUserView(View):
             user.is_active = False
             user.save()
 
-            #goodbye_email = user.create_and_send_goodbye_email()
-            #goodbye_email.save()
+            goodbye_email = user.create_and_send_goodbye_email(request)
+            goodbye_email.save()
 
-            #return redirect(reverse(
-                #'verification_results',
-                #kwargs={'results': 'success'}
-            #))
-            return HttpResponse('You have been unsubscribed.')
+            return redirect(reverse(
+                'unsubscribe_results',
+                kwargs={'results': 'success'}
+            ))
 
         else:
-            #return redirect(reverse(
-                #'verification_results',
-                #kwargs={'results': 'failed'}
-            #))
-            return HttpResponse('Unable to unsubscribe')
+            return redirect(reverse(
+                'unsubscribe_results',
+                kwargs={'results': 'failed'}
+            ))
 
+
+@method_decorator(is_from_referrer('unsubscribe_user'), name='dispatch')
+class UnsubscribeResultsPageView(View ):
+
+    def get(self, request, results):
+        if results == 'success' or results == 'failed':
+            return render(
+                request,
+                'subscribers/unsubscribe_results_page.html',
+                {'results': results}
+            )

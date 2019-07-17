@@ -27,6 +27,11 @@ urlpatterns = [
     path(
         'unsubscribe_user/<str:uid>/<str:token>',
         views.UnsubscribeUserView.as_view(),
-        name='unsubscribe_user')
-    ,
+        name='unsubscribe_user'
+    ),
+    path(
+        'unsubscribe/<str:results>/',
+        views.UnsubscribeResultsPageView.as_view(),
+        name='unsubscribe_results'
+    ),
 ]

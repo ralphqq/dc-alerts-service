@@ -1,0 +1,8 @@
+{% extends 'base_email.html' %}
+{% block message_body %}
+You've successfully unsubscribe from DC Alerts. We've removed your email address {{ recipient.email }} from our mailing list.
+
+From now on, you'll no longer receive any emails from us.
+
+Thanks and see you around.
+{% endblock %}

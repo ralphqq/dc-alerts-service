@@ -110,6 +110,9 @@ class Subscriber(AbstractBaseUser, PermissionsMixin):
     def create_and_send_welcome_email(self, request):
         """Creates and sends out welcome email to user.
 
+        The email is sent once a user successfully verifies her email 
+        address.
+
         Returns:
             TransactionalEmail object: the welcome email object
         """
@@ -134,3 +137,24 @@ class Subscriber(AbstractBaseUser, PermissionsMixin):
         )
 
         return welcome_email
+
+
+    def create_and_send_goodbye_email(self, request):
+        """Creates and sends out goodbye email to user.
+
+        This email is sent after a user successfully unsubscribes.
+
+        Returns:
+            TransactionalEmail object: the welcome email object
+        """
+        goodbye_email = self.transactionalemail_set.create(
+            subject_line='You have successfully unsubscribed'
+        )
+
+        send_email(
+            email_object=goodbye_email,
+            email_template='email_alerts/goodbye_email.html',
+            context={'recipient': self}
+        )
+
+        return goodbye_email
