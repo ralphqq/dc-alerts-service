@@ -75,3 +75,9 @@ class VerificationResultsPageView(View):
                 'subscribers/verification_results_page.html',
                 {'results': results}
             )
+
+
+class UnsubscribeUserView(View):
+
+    def get(self, request, uid, token):
+        return HttpResponse('Hey!')

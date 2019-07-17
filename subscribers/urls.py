@@ -23,5 +23,10 @@ urlpatterns = [
         'verification/<str:results>/',
         views.VerificationResultsPageView.as_view(),
         name='verification_results'
-    )
+    ),
+    path(
+        'unsubscribe_user/<str:uid>/<str:token>',
+        views.UnsubscribeUserView.as_view(),
+        name='unsubscribe_user')
+    ,
 ]
