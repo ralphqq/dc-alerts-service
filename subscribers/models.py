@@ -107,12 +107,19 @@ class Subscriber(AbstractBaseUser, PermissionsMixin):
         return None
 
 
-    def create_and_send_welcome_email(self):
+    def create_and_send_welcome_email(self, request):
         """Creates and sends out welcome email to user.
 
         Returns:
             TransactionalEmail object: the welcome email object
         """
+        unsubscribe_link = create_secure_link(
+            request=request,
+            user=self,
+            viewname='unsubscribe_user',
+            external=True
+        )
+
         welcome_email = self.transactionalemail_set.create(
             subject_line='Welcome to DC Alerts!'
         )
@@ -120,7 +127,10 @@ class Subscriber(AbstractBaseUser, PermissionsMixin):
         send_email(
             email_object=welcome_email,
             email_template='email_alerts/welcome_email.html',
-            context={'recipient': self}
+            context={
+                'recipient': self,
+                'unsubscribe_link': unsubscribe_link
+            }
         )
 
         return welcome_email

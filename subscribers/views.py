@@ -51,7 +51,7 @@ class VerifyEmailView(View):
             user.is_active = True
             user.save()
 
-            welcome_email = user.create_and_send_welcome_email()
+            welcome_email = user.create_and_send_welcome_email(request)
             welcome_email.save()
 
             return redirect(reverse(
@@ -81,4 +81,26 @@ class VerificationResultsPageView(View):
 class UnsubscribeUserView(View):
 
     def get(self, request, uid, token):
-        return HttpResponse('Hey!')
+        request.session['prev_view'] = 'unsubscribe_user'
+        user = Subscriber.verify_secure_link(uid, token)
+
+        if user is not None:
+            user.is_active = False
+            user.save()
+
+            #goodbye_email = user.create_and_send_goodbye_email()
+            #goodbye_email.save()
+
+            #return redirect(reverse(
+                #'verification_results',
+                #kwargs={'results': 'success'}
+            #))
+            return HttpResponse('You have been unsubscribed.')
+
+        else:
+            #return redirect(reverse(
+                #'verification_results',
+                #kwargs={'results': 'failed'}
+            #))
+            return HttpResponse('Unable to unsubscribe')
+
