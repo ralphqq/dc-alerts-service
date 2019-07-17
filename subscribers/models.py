@@ -4,7 +4,7 @@ from django.db import models
 from django.utils import timezone
 
 from email_alerts.utils import send_email
-from subscribers.utils import create_confirmation_link, get_uid
+from subscribers.utils import create_secure_link, get_uid
 from subscribers.tokens import account_activation_token
 
 
@@ -64,7 +64,7 @@ class Subscriber(AbstractBaseUser, PermissionsMixin):
         """
 
         # Create the confirmation URL
-        confirmation_link = create_confirmation_link(
+        confirmation_link = create_secure_link(
             request=request,
             user=self,
             viewname='verify_email',

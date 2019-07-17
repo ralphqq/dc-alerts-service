@@ -5,7 +5,7 @@ from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 from subscribers.tokens import account_activation_token
 
 
-def create_confirmation_link(request, user, viewname, external=True):
+def create_secure_link(request, user, viewname, external=True):
     url_path = reverse(
         viewname,
         kwargs = {

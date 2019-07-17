@@ -5,7 +5,7 @@ from django.shortcuts import reverse
 from django.test import TestCase
 
 from subscribers.models import Subscriber
-from subscribers.utils import create_confirmation_link
+from subscribers.utils import create_secure_link
 
 
 class RegisterEmailViewTest(TestCase):
@@ -67,7 +67,7 @@ class ActivateUserTest(TestCase):
         new_user = Subscriber.objects.get(email=test_email_address)
         request = response.wsgi_request
 
-        confirmation_link = create_confirmation_link(
+        confirmation_link = create_secure_link(
             request=request,
             user=new_user,
             viewname='verify_email',
@@ -97,7 +97,7 @@ class ActivateUserTest(TestCase):
 
         request_1 = response_1.wsgi_request
 
-        confirmation_link_1 = create_confirmation_link(
+        confirmation_link_1 = create_secure_link(
             request=request_1,
             user=new_user_2,
             viewname='verify_email',
