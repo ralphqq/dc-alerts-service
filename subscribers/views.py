@@ -113,3 +113,43 @@ class UnsubscribeResultsPageView(View ):
                 'subscribers/unsubscribe_results_page.html',
                 {'results': results}
             )
+
+
+class OptOutRequestPageView(View):
+
+    def get(self, request):
+        return render(request, 'subscribers/optout_request.html')
+
+
+    def post(self, request):
+        try:
+            email = request.POST['email_address']
+            user = Subscriber.objects.get(email=email.strip())
+        except Subscriber.DoesNotExist:
+            user = None
+
+        if user is not None and user.is_active:
+            # Create and send optout email only to existing active user
+            optout_email = user.create_and_send_optout_email(request)
+            optout_email.save()
+
+        # Show same instructions to existing and non-existing users 
+        # to avoid guessing registered email addresses
+        request.session['prev_view'] = 'optout_request'
+        request.session['submitted_email'] = email.strip()
+        return redirect(reverse('optout_instructions'))
+
+
+@method_decorator(is_from_referrer('optout_request'), name='dispatch')
+class OptOutInstructionsPageView(View):
+
+    def get(self, request):
+        email_address = request.session.get('submitted_email')
+        if email_address is not None:
+            del request.session['submitted_email']
+
+        return render(
+            request,
+            'subscribers/optout_instructions.html',
+            {'email_address': email_address}
+        )

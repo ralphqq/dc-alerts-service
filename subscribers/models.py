@@ -145,7 +145,7 @@ class Subscriber(AbstractBaseUser, PermissionsMixin):
         This email is sent after a user successfully unsubscribes.
 
         Returns:
-            TransactionalEmail object: the welcome email object
+            TransactionalEmail object: the goodbye email object
         """
         goodbye_email = self.transactionalemail_set.create(
             subject_line='You have successfully unsubscribed'
@@ -158,3 +158,35 @@ class Subscriber(AbstractBaseUser, PermissionsMixin):
         )
 
         return goodbye_email
+
+
+    def create_and_send_optout_email(self, request):
+        """Creates and sends out unsubscribe email to user.
+
+        The email is sent after a user requests an unsubscribe email 
+        from the optout page.
+
+        Returns:
+            TransactionalEmail object: the unsubscribe email object
+        """
+        unsubscribe_link = create_secure_link(
+            request=request,
+            user=self,
+            viewname='unsubscribe_user',
+            external=True
+        )
+
+        optout_email = self.transactionalemail_set.create(
+            subject_line='Unsubscribe from our mailing list'
+        )
+
+        send_email(
+            email_object=optout_email,
+            email_template='email_alerts/optout_email.html',
+            context={
+                'recipient': self,
+                'optout_link': unsubscribe_link
+            }
+        )
+
+        return optout_email

@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block page_title %}Click the link we sent you{% endblock %}
+
+{% block page_content %}
+<div class="row">
+  <div class="col-md-6">
+    <h1>Click the link we sent you</h1>
+    <p>We sent an email to <strong>{{ email_address }}</strong>. Please click the link in the email to unsubscribe from DC Alerts.</p>
+    <p>Didn't get the unsubscribe email? Try the following:</p>
+    <ul>
+      <li>Refresh your email inbox</li>
+      <li>Check your spam or junk folder</li>
+      <li>Make sure you entered the correct email address</li>
+      <li>Contact DC Alerts for support <a href="#">here</a></li>
+    </ul>
+  </div>
+</div>
+{% endblock %}

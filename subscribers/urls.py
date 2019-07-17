@@ -34,4 +34,14 @@ urlpatterns = [
         views.UnsubscribeResultsPageView.as_view(),
         name='unsubscribe_results'
     ),
+    path(
+        'optout/',
+        views.OptOutRequestPageView.as_view(),
+        name='optout_request'
+    ),
+    path(
+        'optout/instructions/',
+        views.OptOutInstructionsPageView.as_view(),
+        name='optout_instructions'
+    ),
 ]
