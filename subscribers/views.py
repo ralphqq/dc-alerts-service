@@ -12,7 +12,11 @@ class RegisterEmailView(View):
     def post(self, request):
         email = request.POST['email_address']
         new_user = Subscriber.objects.create(email=email.strip())
-        new_user.create_and_send_confirmation_email(request)
+        confirmation_email = new_user.create_and_send_confirmation_email(
+            request
+        )
+        confirmation_email.save()
+
         request.session['prev_view'] = 'register_new_email'
         return redirect(reverse('confirm_email_page'))
 
