@@ -18,6 +18,7 @@ class RegisterEmailView(View):
         confirmation_email.save()
 
         request.session['prev_view'] = 'register_new_email'
+        request.session['new_user_email'] = email.strip()
         return redirect(reverse('confirm_email_page'))
 
 
@@ -29,7 +30,15 @@ class RegisterEmailView(View):
 class ConfirmEmailPageView(View):
 
     def get(self, request):
-        return render(request, 'subscribers/confirm_email.html')
+        new_user_email = request.session.get('new_user_email')
+
+        if new_user_email is not None:
+            del request.session['new_user_email']
+
+        return render(request, 
+            'subscribers/confirm_email.html',
+            {'new_user_email': new_user_email}
+        )
 
 
 class VerifyEmailView(View):

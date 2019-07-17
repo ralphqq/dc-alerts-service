@@ -43,3 +43,6 @@ class NewVisitorTest(FunctionalTest):
             header_text.text
         )
 
+        # She also sees the email address she typed.
+        body_text = self.browser.find_element_by_tag_name('body').text
+        self.assertIn(valid_email, body_text)
