@@ -87,11 +87,11 @@ class Subscriber(AbstractBaseUser, PermissionsMixin):
 
 
     @staticmethod
-    def verify_confirmation_link(uid, token):
-        """Checks if uid and token point to a valid signup.
+    def verify_secure_link(uid, token):
+        """Checks if uid and token point to a valid user.
 
         Returns:
-            Subscriber: the registering user if both uid and token are valid
+            Subscriber: the user if both uid and token are valid
             None: otherwise
         """
         user = None
@@ -102,7 +102,6 @@ class Subscriber(AbstractBaseUser, PermissionsMixin):
             user = None
 
         if user is not None and account_activation_token.check_token(user, token):
-            user.is_active = True
             return user
 
         return None

@@ -45,9 +45,10 @@ class VerifyEmailView(View):
 
     def get(self, request, uid, token):
         request.session['prev_view'] = 'verify_email'
-        user = Subscriber.verify_confirmation_link(uid, token)
+        user = Subscriber.verify_secure_link(uid, token)
 
         if user is not None:
+            user.is_active = True
             user.save()
 
             welcome_email = user.create_and_send_welcome_email()
