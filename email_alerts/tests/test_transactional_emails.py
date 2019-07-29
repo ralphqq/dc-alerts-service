@@ -3,16 +3,16 @@ from unittest import skip
 
 from django.core import mail
 from django.shortcuts import reverse
-from django.test import TestCase
 
 from email_alerts.models import TransactionalEmail
+from email_alerts.tests.base_test_setup import EmailTestCase
 from email_alerts.utils import send_email
 from subscribers.models import Subscriber
 from subscribers.utils import create_secure_link
 
 
-class TransactionalEmailTest(TestCase):
-    @skip
+class TransactionalEmailTest(EmailTestCase):
+
     def setUp(self):
         self.url_re = re.compile('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+')
 
@@ -27,9 +27,9 @@ class TransactionalEmailTest(TestCase):
 
         return user, request
 
-    @skip
+
     def test_if_signup_generates_confirmation_email(self):
-        test_email_address = 'foo@example.com'
+        test_email_address = 'foo1@example.com'
         response = self.client.post(
             reverse('register_new_email'),
             data={'email_address': test_email_address}
@@ -42,10 +42,10 @@ class TransactionalEmailTest(TestCase):
         self.assertEqual(msg.subject, 'Please confirm your email address')
         self.assertIsNotNone(self.url_re.search(msg.body))
 
-    @skip
+
     def test_successful_confirmation_sends_welcome_email(self):
         # Create user and response
-        user, request = self.create_user_and_request()
+        user, request = self.create_user_and_request('foo2@example.com')
 
         # Create a confirmation link
         confirmation_link = create_secure_link(
@@ -65,10 +65,10 @@ class TransactionalEmailTest(TestCase):
         self.assertEqual(msg.subject, 'Welcome to DC Alerts!')
         self.assertIn(user.email, msg.body)
 
-    @skip
+
     def test_unsubscribe_sends_goodbye_email(self):
         # Create user and response
-        user, request = self.create_user_and_request()
+        user, request = self.create_user_and_request('foo42@example.com')
 
         # Confirm user
         user.is_active = True
@@ -92,7 +92,7 @@ class TransactionalEmailTest(TestCase):
         self.assertEqual(msg.subject, 'You have successfully unsubscribed')
         self.assertIn(user.email, msg.body)
 
-    @skip
+
     def test_optout_request_sends_email(self):
         # Create and confirm a user
         email_address = 'fighter@abnormal.com'
