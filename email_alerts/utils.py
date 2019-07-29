@@ -1,14 +1,12 @@
-from django.core.mail import EmailMessage
 from django.template.loader import render_to_string
-from django.utils import timezone
+
+from email_alerts.tasks import send_one_email
 
 
 def send_email(email_object, email_template, context=None):
-    msg = EmailMessage(
+    send_one_email.delay(
+        email_id=email_object.pk,
         subject=email_object.subject_line,
         body=render_to_string(email_template, context),
-        to=[email_object.recipient.email]
+recipient=email_object.recipient.email
     )
-    msg.send()
-    email_object.date_sent = timezone.now()
-    email_object.message_body = msg.body

@@ -1,12 +1,13 @@
 from django.core import mail
-from django.test import TestCase
+from django.template.loader import render_to_string
 
 from email_alerts.models import TransactionalEmail
-from email_alerts.utils import send_email
+from email_alerts.tasks import send_one_email
+from email_alerts.tests.base_test_setup import EmailTestCase
 from subscribers.models import Subscriber
 
 
-class SendMailTest(TestCase):
+class SendEmailTest(EmailTestCase):
 
     def test_send_email_function(self):
         new_user = Subscriber.objects.create(email='noreply@example.com')
@@ -15,12 +16,16 @@ class SendMailTest(TestCase):
             subject_line='Testing email send-outs'
         )
         mail_created_at = test_email.date_sent
-        send_email(
-            email_object=test_email,
-            email_template='email_alerts/test.html',
-            context={'recipient': new_user}
-        )
         test_email.save()
+        task = send_one_email.delay(
+            email_id=test_email.pk,
+            subject=test_email.subject_line,
+            body=render_to_string('email_alerts/test.html'),
+            recipient=new_user.email
+        )
+        result = task.get()
 
         self.assertEqual(len(mail.outbox), 1)
-        self.assertTrue(test_email.date_sent > mail_created_at)
+
+        msg = mail.outbox[0]
+        self.assertEqual(msg.subject, test_email.subject_line)
