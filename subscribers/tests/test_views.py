@@ -40,8 +40,11 @@ class RegisterEmailViewTest(TestCase):
             data={'email_address': test_email_address}
         )
         new_user = Subscriber.objects.get(email=test_email_address)
+        active_users = Subscriber.get_all_active_subscribers()
 
         self.assertEqual(new_user.email, test_email_address)
+        self.assertIs(new_user.is_active, False)
+        self.assertEqual(active_users.count(), 0)
 
 
 class ConfirmEmailPageViewTest(TestCase):
@@ -76,11 +79,14 @@ class ActivateUserTest(TestCase):
 
         verification_response = self.client.get(confirmation_link)
         this_user = Subscriber.objects.get(email=test_email_address)
+        active_users = Subscriber.get_all_active_subscribers()
+
         self.assertIs(this_user.is_active, True)
         self.assertRedirects(
             verification_response,
             reverse('verification_results', kwargs={'results': 'success'})
         )
+        self.assertEqual(active_users.count(), 1)
 
 
     def test_invalid_confirmation_links(self):
@@ -158,7 +164,10 @@ class UnsubscribeUserViewTest(TestCase):
 
         # Check the user object
         this_user = Subscriber.objects.get(email=test_email_address)
+        active_users = Subscriber.get_all_active_subscribers()
+
         self.assertIs(this_user.is_active, False)
+        self.assertEqual(active_users.count(), 0)
 
         # Redirect to successful opt out page
         self.assertRedirects(

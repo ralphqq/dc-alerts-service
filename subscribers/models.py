@@ -56,6 +56,17 @@ class Subscriber(AbstractBaseUser, PermissionsMixin):
         return self.email
 
 
+    @staticmethod
+    def get_all_active_subscribers():
+        """Filters and returns list of all currently-active contacts.
+
+        Returns:
+            A query set of Subscriber instances with `is_active `
+            attribute equal to True
+        """
+        return Subscriber.objects.filter(is_active=True)
+
+
     def create_and_send_confirmation_email(self, request):
         """Creates and sends an email containing confirmation link.
 
