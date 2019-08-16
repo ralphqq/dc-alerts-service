@@ -3,6 +3,12 @@ from django.utils import timezone
 
 
 class EmailAlert(models.Model):
+    outage = models.OneToOneField(
+        'notices.OutageNotice',
+        on_delete=models.CASCADE,
+        related_name='email_alert',
+        null=True
+    )
     recipients = models.ManyToManyField('subscribers.Subscriber')
     date_sent = models.DateTimeField(default=timezone.now)
     subject_line = models.CharField(max_length=255)
