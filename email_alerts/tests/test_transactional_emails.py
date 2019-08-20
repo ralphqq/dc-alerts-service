@@ -6,7 +6,6 @@ from django.shortcuts import reverse
 
 from email_alerts.models import TransactionalEmail
 from email_alerts.tests.base_test_setup import EmailTestCase
-from email_alerts.utils import send_email
 from subscribers.models import Subscriber
 from subscribers.utils import create_secure_link
 
