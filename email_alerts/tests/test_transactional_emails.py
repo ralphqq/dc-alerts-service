@@ -15,17 +15,6 @@ url_re = re.compile('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-
 
 class TransactionalEmailTest(EmailTestCase):
 
-    def create_user_and_request(self, email='foo@example.com'):
-        # Create user
-        user = Subscriber.objects.create(email=email)
-
-        # Get a request object
-        response = self.client.get(reverse('homepage'))  # Could be any view
-        request = response.wsgi_request
-
-        return user, request
-
-
     def test_if_signup_generates_confirmation_email(self):
         test_email_address = 'foo1@example.com'
         response = self.client.post(
