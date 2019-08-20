@@ -11,11 +11,9 @@ from subscribers.models import Subscriber
 from subscribers.utils import create_secure_link
 
 
+url_re = re.compile('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+')
+
 class TransactionalEmailTest(EmailTestCase):
-
-    def setUp(self):
-        self.url_re = re.compile('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+')
-
 
     def create_user_and_request(self, email='foo@example.com'):
         # Create user
@@ -40,7 +38,7 @@ class TransactionalEmailTest(EmailTestCase):
         self.assertEqual(len(mail.outbox), 1)
         self.assertSequenceEqual(msg.recipients(), [new_user.email])
         self.assertEqual(msg.subject, 'Please confirm your email address')
-        self.assertIsNotNone(self.url_re.search(msg.body))
+        self.assertIsNotNone(url_re.search(msg.body))
 
 
     def test_successful_confirmation_sends_welcome_email(self):
@@ -113,4 +111,4 @@ class TransactionalEmailTest(EmailTestCase):
         self.assertSequenceEqual(msg.recipients(), [user.email])
         self.assertEqual(msg.subject, 'Unsubscribe from our mailing list')
         self.assertIn(user.email, msg.body)
-        self.assertIsNotNone(self.url_re.search(msg.body))
+        self.assertIsNotNone(url_re.search(msg.body))

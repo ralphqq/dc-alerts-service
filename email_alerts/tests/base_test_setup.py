@@ -4,7 +4,7 @@ from django.test import SimpleTestCase, TestCase, TransactionTestCase
 from dcalerts.celery import app
 
 
-class EmailTestCase(SimpleTestCase):
+class EmailTestCase(TransactionTestCase):
     allow_database_queries = True
 
 
