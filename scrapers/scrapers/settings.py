@@ -9,6 +9,19 @@
 #     https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 #     https://docs.scrapy.org/en/latest/topics/spider-middleware.html
 
+import os
+import sys
+
+import django
+
+# Wiring up Scrapy project with Django project
+S_ROOT = os.path.join(
+    os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "..")
+if S_ROOT not in sys.path:
+    sys.path.append(S_ROOT)
+os.environ['DJANGO_SETTINGS_MODULE'] = 'dcalerts.settings'
+django.setup()
+
 BOT_NAME = 'scrapers'
 
 SPIDER_MODULES = ['scrapers.spiders']

@@ -67,6 +67,7 @@ INSTALLED_APPS = [
     'subscribers',
     'email_alerts',
     'notices',
+    'scrapers',
 ]
 
 MIDDLEWARE = [
