@@ -1,4 +1,4 @@
-from django.test import TestCase
+from django.test import TransactionTestCase
 from scrapy.selector import Selector
 
 from scrapers.tests.utils import make_response_object
@@ -10,7 +10,7 @@ html_files = {
 }
 
 
-class ScraperTestCase(TestCase):
+class ScraperTestCase(TransactionTestCase):
 
     def setUp(self):
         self.spider = None
