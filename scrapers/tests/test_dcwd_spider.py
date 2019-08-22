@@ -1,10 +1,9 @@
 from unittest import skip
 
-from django.test import TestCase
 from scrapy.http import Request
-from scrapy.selector import Selector
 
 from scrapers.scrapers.spiders.dcwd import DcwdSpider
+from scrapers.tests.base_scraper_test_setup import ScraperTestCase
 from scrapers.tests.utils import make_response_object
 
 # Paths to HTML test files
@@ -12,7 +11,7 @@ dcwd_index_file = 'scrapers/tests/html/dcwd_index.html'
 dcwd_details_file = 'scrapers/tests/html/dcwd_details.html'
 
 
-class DcwdParserTests(TestCase):
+class DcwdParserTests(ScraperTestCase):
 
     def setUp(self):
         self.spider = DcwdSpider(limit=1)
@@ -20,11 +19,9 @@ class DcwdParserTests(TestCase):
 
     def test_parse(self):
         """Tests the spider's main parse method."""
-        response = make_response_object(dcwd_index_file)
-        raw_results = self.spider.parse(response)
-
-        # Convert generator into list of Request objects
-        valid_results = list(raw_results)
+        valid_results = self.get_parse_results(
+            response=make_response_object(dcwd_index_file)
+        )
 
         # Test if list is non-empty
         self.assertGreater(len(valid_results), 0)
@@ -40,12 +37,14 @@ class DcwdParserTests(TestCase):
 
     def test_parse_page(self):
         """Tests the spider's parse_page method."""
-        response = make_response_object(
-            filepath=dcwd_details_file,
-            meta={'urgency': 'a', 'title': 'Some Title', 'notice_id': '123'}
+        valid_results = self.get_parse_results(
+            parse_method_name='parse_page',
+            response=make_response_object(
+                filepath=dcwd_details_file,
+                meta={'urgency': 'a', 'title': 'Some Title',
+                      'notice_id': '123'}
+            )
         )
-        raw_results = self.spider.parse_page(response)
-        valid_results = list(raw_results)
 
         self.assertGreater(len(valid_results), 0)
         for item in valid_results:
