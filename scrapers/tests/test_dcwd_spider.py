@@ -3,12 +3,8 @@ from unittest import skip
 from scrapy.http import Request
 
 from scrapers.scrapers.spiders.dcwd import DcwdSpider
-from scrapers.tests.base_scraper_test_setup import ScraperTestCase
-from scrapers.tests.utils import make_response_object
-
-# Paths to HTML test files
-dcwd_index_file = 'scrapers/tests/html/dcwd_index.html'
-dcwd_details_file = 'scrapers/tests/html/dcwd_details.html'
+from scrapers.tests.base_scraper_test_setup import ScraperTestCase, html_files
+from scrapers.tests.utils import make_response_object, make_fake_id
 
 
 class DcwdParserTests(ScraperTestCase):
@@ -20,7 +16,7 @@ class DcwdParserTests(ScraperTestCase):
     def test_parse(self):
         """Tests the spider's main parse method."""
         valid_results = self.get_parse_results(
-            response=make_response_object(dcwd_index_file)
+            response=make_response_object(html_files['dcwd_index'])
         )
 
         # Test if list is non-empty
@@ -40,9 +36,9 @@ class DcwdParserTests(ScraperTestCase):
         valid_results = self.get_parse_results(
             parse_method_name='parse_page',
             response=make_response_object(
-                filepath=dcwd_details_file,
+                filepath=html_files['dcwd_details'],
                 meta={'urgency': 'a', 'title': 'Some Title',
-                      'notice_id': '123'}
+                      'notice_id': make_fake_id()}
             )
         )
 
@@ -65,9 +61,9 @@ class DcwdParserTests(ScraperTestCase):
         valid_results = self.get_parse_results(
             parse_method_name='parse_page',
             response=make_response_object(
-                filepath=dcwd_details_file,
+                filepath=html_files['dcwd_details'],
                 meta={'urgency': 'a', 'title': 'Some Title',
-                      'notice_id': '123'}
+                      'notice_id': make_fake_id()}
             )
         )        
 

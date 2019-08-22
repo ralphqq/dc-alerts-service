@@ -3,6 +3,12 @@ from scrapy.selector import Selector
 
 from scrapers.tests.utils import make_response_object
 
+# Paths to HTML test files
+html_files = {
+    'dcwd_index': 'scrapers/tests/html/dcwd_index.html',
+    'dcwd_details': 'scrapers/tests/html/dcwd_details.html',
+}
+
 
 class ScraperTestCase(TestCase):
 

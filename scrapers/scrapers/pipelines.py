@@ -1,11 +1,32 @@
 # -*- coding: utf-8 -*-
+import logging
 
-# Define your item pipelines here
-#
-# Don't forget to add your pipeline to the ITEM_PIPELINES setting
-# See: https://docs.scrapy.org/en/latest/topics/item-pipeline.html
+from django.db import IntegrityError
+
+from notices.models import OutageNotice
 
 
 class ScrapersPipeline(object):
     def process_item(self, item, spider):
+        try:
+            notice = OutageNotice(
+                urgency=item['urgency'],
+                source_url=item['source_url'],
+                headline=item['headline'],
+                details=item['details'],
+    provider=item['provider'],
+    service=item['service'],
+    posted_on=item['posted_on']
+            )
+
+            if notice.provider == 'DCWD':
+                notice.notice_id = item['notice_id']
+            else:
+                notice.set_notice_id()
+
+            notice.save()
+            logging.log(logging.INFO, f'Saved new {notice.provider} notice')
+        except IntegrityError as e:
+            logging.log(logging.INFO, e)
+
         return item

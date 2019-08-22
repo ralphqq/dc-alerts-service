@@ -1,4 +1,7 @@
+import uuid
+
 from scrapy.http import Request, HtmlResponse
+
 
 def make_response_object(filepath, callback=None, method='GET', meta=None):
     """Creates a Scrapy Response object from a local HTML file.
@@ -30,3 +33,9 @@ def make_response_object(filepath, callback=None, method='GET', meta=None):
         request=request,
         body=file_content.encode('utf-8')
     )
+
+
+def make_fake_id():
+    """Generates a 20-character UUID as str."""
+    s = str(uuid.uuid4())
+    return s[:20]
