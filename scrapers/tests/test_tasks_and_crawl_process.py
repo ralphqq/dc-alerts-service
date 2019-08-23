@@ -18,7 +18,22 @@ class ScrapersCrawlProcessTest(TransactionTestCase):
 
 class CeleryScrapeTasksTest(TransactionTestCase):
 
+    @patch('scrapers.crawl.CrawlerProcess.crawl')
+    def test_task_calls_dcwd_spider(self, mock_process):
+        run_dcwd_spider()
+        self.assertEqual(mock_process.called, True)
+
+
+    @patch('scrapers.crawl.CrawlerProcess.crawl')
+    def test_task_calls_dcwd_spider_with_args(self, mock_process_with_args):
+        run_dcwd_spider(input='inputargument', db_mode='skip')
+        self.assertEqual(mock_process_with_args.called, True)
+        _, kwargs = mock_process_with_args.call_args
+        self.assertEqual(kwargs.get('input'), 'inputargument')
+        self.assertEqual(kwargs.get('db_mode'), 'skip')
+
+
     @patch('scrapers.tasks.CrawlTaskHandler.run_spider')
-    def test_task_launches_dcwd_spider(self, mock_dcwd_crawl):
+    def test_task_runs_dcwd_spider(self, mock_dcwd_crawl):
         run_dcwd_spider()
         self.assertEqual(mock_dcwd_crawl.called, True)
