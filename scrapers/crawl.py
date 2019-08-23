@@ -9,9 +9,18 @@ class CrawlTaskHandler:
     def __init__(self, spider):
         os.environ.setdefault(
             'SCRAPY_SETTINGS_MODULE',
-            'scrapers.settings'
+            'scrapers.scrapers.settings'
         )
-        self.process = CrawlerProcess(get_project_settings())
+
+        # Custom settings
+        s = get_project_settings()
+        s['SPIDER_MODULES'] = ['scrapers.scrapers.spiders']
+        s['NEWSPIDER_MODULE'] = 'scrapers.scrapers.spiders'
+        s['ITEM_PIPELINES'] = {
+            'scrapers.scrapers.pipelines.ScrapersPipeline': 300,
+        }
+
+        self.process = CrawlerProcess(s)
         self.spider = spider
 
     def run_spider(self):
