@@ -10,6 +10,10 @@ app = Celery('dcalerts')
 
 app.config_from_object('django.conf:settings', namespace='CELERY')
 app.autodiscover_tasks()
+app.conf.update(
+    worker_max_tasks_per_child=1,
+    broker_pool_limit=None
+)
 
 
 @app.task(bind=True)

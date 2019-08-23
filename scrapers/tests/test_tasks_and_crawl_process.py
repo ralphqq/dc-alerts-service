@@ -4,6 +4,7 @@ from django.test import TransactionTestCase
 
 from scrapers.crawl import CrawlTaskHandler
 from scrapers.scrapers.spiders.dcwd import DcwdSpider
+from scrapers.tasks import run_dcwd_spider
 
 
 class ScrapersCrawlProcessTest(TransactionTestCase):
@@ -14,3 +15,10 @@ class ScrapersCrawlProcessTest(TransactionTestCase):
         crawl.run_spider()
         self.assertEqual(mock_requests.called, True)
 
+
+class CeleryScrapeTasksTest(TransactionTestCase):
+
+    @patch('scrapers.tasks.CrawlTaskHandler.run_spider')
+    def test_task_launches_dcwd_spider(self, mock_dcwd_crawl):
+        run_dcwd_spider()
+        self.assertEqual(mock_dcwd_crawl.called, True)
