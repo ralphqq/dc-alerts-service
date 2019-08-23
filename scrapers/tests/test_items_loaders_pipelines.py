@@ -15,8 +15,8 @@ class ScrapersPipelineTests(ScraperTestCase):
         self.spider = DcwdSpider(limit=1)
 
 
-    def test_scrapers_pipeline_saves_items_to_db(self):
-        """Tests if default item pipeline saves to db."""
+    def get_results_and_pipeline_object(self):
+        """Helper function that returns valid results and pipeline object."""
         # Get results from parse_page
         valid_results = self.get_parse_results(
             parse_method_name='parse_page',
@@ -27,7 +27,14 @@ class ScrapersPipelineTests(ScraperTestCase):
             )
         )        
 
+        # Create pipeline object
         item_pipeline = ScrapersPipeline()
+        return valid_results, item_pipeline
+
+
+    def test_scrapers_pipeline_saves_items_to_db(self):
+        """Tests if default item pipeline saves to db."""
+        valid_results, item_pipeline = self.get_results_and_pipeline_object()
         for item in valid_results:
             item_pipeline.process_item(item, self.spider)
 
@@ -37,14 +44,7 @@ class ScrapersPipelineTests(ScraperTestCase):
 
     def test_discards_items_with_duplicate_notice_id(self):
         """Test if pipeline  does not save duplicate items."""
-        valid_results = self.get_parse_results(
-            parse_method_name='parse_page',
-            response=make_response_object(
-                filepath=html_files['dcwd_details'],
-                meta={'urgency': 'a', 'title': 'Some Title',
-                      'notice_id': make_fake_id()}
-            )
-        )        
+        valid_results, item_pipeline = self.get_results_and_pipeline_object()
 
         # Append existing item into list to simulate duplication
         valid_results.append(valid_results[0])
@@ -52,7 +52,6 @@ class ScrapersPipelineTests(ScraperTestCase):
         # Get length of list with duplicate
         item_count = len(valid_results)
 
-        item_pipeline = ScrapersPipeline()
         for item in valid_results:
             item_pipeline.process_item(item, self.spider)
 
@@ -69,16 +68,7 @@ class ScrapersPipelineTests(ScraperTestCase):
         self.spider = DcwdSpider(db_mode='skip', limit=1)
         self.assertEqual(self.spider.db_mode, 'skip')
 
-        valid_results = self.get_parse_results(
-            parse_method_name='parse_page',
-            response=make_response_object(
-                filepath=html_files['dcwd_details'],
-                meta={'urgency': 'a', 'title': 'Some Title',
-                      'notice_id': make_fake_id()}
-            )
-        )        
-
-        item_pipeline = ScrapersPipeline()
+        valid_results, item_pipeline = self.get_results_and_pipeline_object()
         for item in valid_results:
             item_pipeline.process_item(item, self.spider)
 
