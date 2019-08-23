@@ -17,7 +17,7 @@ date_xpath = '//div[@class="divTitle"]//b/text()'
 sets_xpath = '//h1[@class="black"]/parent::*'
 set_name_xpath = './h1/text()'
 when_xpath = './following-sibling::div[@class="panel panel-success"][1]//div[@class="divInput"]//text()'
-where_xpath = './following-sibling::div[@class="panel panel-info"][1]//text()'
+where_xpath = './following-sibling::div[@class="panel panel-info"][1]//div[@class="divInput"]//text()'
 why_xpath = './following-sibling::div[@class="panel panel-primary"][1]//div[@class="divInput"]//text()'
 
 
