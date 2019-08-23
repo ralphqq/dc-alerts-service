@@ -1,4 +1,5 @@
 from hashlib import sha256
+import json
 
 from django.db import models
 from django.utils import timezone
@@ -15,6 +16,12 @@ class OutageNotice(models.Model):
     posted_on = models.DateTimeField(default=timezone.now)
     scraped_on = models.DateTimeField(default=timezone.now)
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        raw_details = kwargs.get('details')
+        if raw_details is not None:
+            self.details = json.dumps(raw_details)
+
     def __str__(self):
         return f'<OutageNotice: {self.headline}>'
 
@@ -27,3 +34,7 @@ class OutageNotice(models.Model):
         """
         h = sha256(self.source_url.encode())
         self.notice_id = h.hexdigest()[:20]
+
+    def load_details(self):
+        """Returns value in details field as Python list object."""
+        return json.loads(self.details)

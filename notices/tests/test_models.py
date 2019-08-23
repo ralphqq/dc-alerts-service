@@ -7,6 +7,7 @@ from django.utils import timezone
 
 from email_alerts.models import EmailAlert
 from notices.models import OutageNotice
+from scrapers.tests.utils import make_fake_id
 from subscribers.models import Subscriber
 
 
@@ -146,3 +147,33 @@ class OutageNoticeAndEmailAlertModelTest(TestCase):
             test_outage_notice.details,
             test_outage_notice.email_alert.message_body
         ))
+
+
+class NoticeDetailsTests(TestCase):
+
+    def test_loading_and_dumping_ofdetails(self):
+        dummy_details = [
+            {
+                'set_n': 'A',
+                'where': 'Somewhere',
+                'when': 'Aug. 23, 2019 from 5:00 a.m. to 12: p.m.',
+                'why': 'Routine maintenance'
+            },
+            {
+                'set_n': 'B',
+                'where': 'Elsewhere',
+                'when': 'Aug. 23, 2019 from 1:00 p.m. to 7:00 p.m.',
+                'why': 'Valve replacement'
+            }
+        ]
+
+        notice = OutageNotice.objects.create(
+            notice_id=make_fake_id(),
+            headline='Water outage on Aug 23',
+            source_url='https://www.example.com/waters',
+            details=dummy_details
+        )
+
+        self.assertIsInstance(notice.details, str)
+        self.assertIsInstance(notice.load_details(), list)
+        self.assertEqual(len(dummy_details), len(notice.load_details()))
