@@ -10,7 +10,7 @@ class ScrapersCrawlProcessTest(TransactionTestCase):
 
     @patch('scrapers.scrapers.spiders.dcwd.DcwdSpider.start_requests')
     def test_crawl_process_launches_dcwd_spider(self, mock_requests):
-        crawl = CrawlTaskHandler(DcwdSpider)
+        crawl = CrawlTaskHandler(DcwdSpider, log_enabled=False)
         crawl.run_spider()
         self.assertEqual(mock_requests.called, True)
 
