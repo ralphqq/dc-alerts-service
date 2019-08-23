@@ -58,3 +58,31 @@ class ScrapersPipelineTests(ScraperTestCase):
 
         # Test if one or more items were not saved to db
         self.assertLess(OutageNotice.objects.count(), item_count)
+
+
+    def test_db_mode_skip_flag(self):
+        """Test if pipeline  obeys db_mode='skip' flag."""
+        # Set aside original spider
+        orig_spider = self.spider
+
+        # Create new spider with db_mode set to 'skip'
+        self.spider = DcwdSpider(db_mode='skip', limit=1)
+        self.assertEqual(self.spider.db_mode, 'skip')
+
+        valid_results = self.get_parse_results(
+            parse_method_name='parse_page',
+            response=make_response_object(
+                filepath=html_files['dcwd_details'],
+                meta={'urgency': 'a', 'title': 'Some Title',
+                      'notice_id': make_fake_id()}
+            )
+        )        
+
+        item_pipeline = ScrapersPipeline()
+        for item in valid_results:
+            item_pipeline.process_item(item, self.spider)
+
+        self.assertEqual(OutageNotice.objects.count(), 0)
+
+        # Re-assign original spider back to self.spider (some sort of cleanup)
+        self.spider = orig_spider

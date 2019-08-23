@@ -26,6 +26,18 @@ class DcwdSpider(scrapy.Spider):
     allowed_domains = ['davao-water.gov.ph']
     start_urls = ['http://davao-water.gov.ph/']
 
+    def __init__(self, db_mode='save', *args, **kwargs):
+        """Overrides spider constructor to accept custom argument.
+
+        Params:
+            db_mode (str): flag to indicate whether or not to save to db; value 
+                can either be 'skip' or 'save'
+        """
+        if db_mode.lower() not in ['save', 'skip']:
+            raise ValueError("db_mode accepts 'skip' or 'save'.")
+        self.db_mode = db_mode.lower()
+        super().__init__(*args, **kwargs)
+
     def parse(self, response):
         for urgency in ['Scheduled', 'Emergency']:
             # Select priority/urgency group
