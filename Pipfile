@@ -1,0 +1,19 @@
+[[source]]
+name = "pypi"
+url = "https://pypi.org/simple"
+verify_ssl = true
+
+[dev-packages]
+selenium = "==3.141.0"
+pypiwin32 = "*"
+
+[packages]
+django = "*"
+celery = "==4.3.0"
+python-dateutil = "*"
+python-dotenv = "*"
+scrapy = "*"
+redis = "*"
+
+[requires]
+python_version = "3.6"
