@@ -1,3 +1,4 @@
+from datetime import datetime
 import re
 
 from dateutil import parser
@@ -48,3 +49,13 @@ def get_datetime_from_text(text):
             return aware_dt.astimezone(pytz.UTC)
 
     return None
+
+
+def datetime_as_str(obj):
+    """Gets the str representation of a datetime obj.
+
+    This function is passed as part of the `default` 
+    parameter in some calls to json.loads()
+    """
+    if isinstance(obj, datetime):
+        return obj.__str__()
