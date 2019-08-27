@@ -8,31 +8,34 @@ This project is a (soon-to-be-launched) web-based service that sends out email a
 * Unit and integration tests done with unittest and Selenium
 
 ## Environment Variables
-Make sure to specify values for the following variables in the `.env` file which is saved in the project root directory:
+Make sure to supply the appropriate values for the following variables in the `.env` file which is saved in the project root directory:
 
-```
-EMAIL_HOST=smtp.googlemail.com  # or some other email host used for sending emails
-EMAIL_HOST_USER=example.address.42@gmail.com    # or some other email address as sender
-EMAIL_HOST_PASSWORD=YOUR_EMAIL_PASSWORD_HERE
-EMAIL_PORT=587
-SAMPLE_RECIPIENT_EMAIL=some.other.email.address@example.com# used to populate signup fields when testing
-TEST_EMAIL_HOST=smtp.mailtrap.io    # email host used for testing purposes
-TEST_EMAIL_HOST_USER=GET_YOUR_OWN_USERNAME
-TEST_EMAIL_HOST_PASSWORD=GET_YOUR_OWN_PASSWORD
-TEST_EMAIL_PORT=2525
-```
+* `DB_USERNAME`: the PostgreSQL username that owns the database used
+* `DB_PASSWORD`: the password corresponding to `DB_USERNAME`
+* `DB_NAME`: the name of the PostgreSQL database used as backend
+* `DB_PORT`: the database port (set this to 5432)
+* `EMAIL_HOST`: host used for sending emails (example: `'smtp.googlemail.com'`)
+* `EMAIL_HOST_USER`: the sending email address
+* `EMAIL_HOST_PASSWORD`: password used for the `EMAIL_HOST_PASSWORD` account
+* `EMAIL_PORT`: for Gmail, this is 587
+* `SAMPLE_RECIPIENT_EMAIL`: email address used to populate signup fields when testing
+* `TEST_EMAIL_HOST`: Mailtrap email host used for testing purposes (`'smtp.mailtrap.io'`)
+* `TEST_EMAIL_HOST_USER`: host username provided by Mailtrap
+* `TEST_EMAIL_HOST_PASSWORD`: host password provided by Mailtrap
+* `TEST_EMAIL_PORT`: port used in email testing provided by Mailtrap (most likely `'2525'`)
 
 **Note:** This project uses [Mailtrap.io](https://mailtrap.io/) as fake SMTP server for testing the app's email sending capabilities.
 
 ## Running Locally
-When running in local machine, make sure to follow the below steps:
+When running on local machine, make sure to follow the below steps:
 
 1. Activate a virtual environment where the dependencies are installed
 2. Define the values for the environment variables in the `.env` file (see above)
-3. Run the Redis server in a terminal (I do this via a docker container)
-4. Start a Celery worker in another terminal using the following command: `celery -A dcalerts worker -l INFO`
-5. Start Celery Beat in yet another terminal: `celery -A dcalerts beat -l INFO`
-6. Spin up the Django development server
+3. Make sure PostgreSQL engine is running
+4. Run the Redis server in a terminal (I do this via a docker container)
+5. Start a Celery worker in another terminal using the following command: `celery -A dcalerts worker -l INFO`
+6. Start Celery Beat in yet another terminal: `celery -A dcalerts beat -l INFO`
+7. Spin up the Django development server
 
 ## Testing
 Before carrying out the unit and integration tests, make sure to start the Redis server and stop any running Celery workers.

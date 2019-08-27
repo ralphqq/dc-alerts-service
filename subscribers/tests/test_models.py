@@ -15,8 +15,8 @@ class SubscriberModelTest(TestCase):
         subscriber_2 = Subscriber.objects.create(email=email_2)
 
         # Retrieve the two subscribers
-        s1 = Subscriber.objects.get(pk=1)
-        s2 = Subscriber.objects.get(pk=2)
+        s1 = Subscriber.objects.get(email=email_1)
+        s2 = Subscriber.objects.get(email=email_2)
 
         # Test if there are exactly 2 subscribers saved
         self.assertEqual(Subscriber.objects.count(), 2)
