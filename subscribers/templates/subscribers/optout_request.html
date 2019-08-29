@@ -9,12 +9,7 @@
     <p>To stop receiving email notifications from DC Alerts, please enter your email address below. We'll send you an unsubscribe link via email.</p>
     <form action="" method="post">
       {% csrf_token %}
-      {{ form.email }}
-      {% if form.errors %}
-      <div class="form-group has-error">
-        <span class="help-block">{{ form.email.errors }}</span>
-      </div>
-      {% endif %}
+      {% include 'email_input_form.html' %}
       <p><input type="submit" value="Get unsubscribe link"></p>
     </form>
   </div>

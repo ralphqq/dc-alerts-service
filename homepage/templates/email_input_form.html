@@ -1,0 +1,6 @@
+{{ form.email }}
+{% if form.errors %}
+<div class="form-group has-error">
+  <span class="help-block">{{ form.email.errors }}</span>
+</div>
+{% endif %}
