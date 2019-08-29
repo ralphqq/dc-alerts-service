@@ -1,9 +1,11 @@
 from unittest import skip
+from unittest.mock import patch
 
 from django.core.exceptions import PermissionDenied
 from django.shortcuts import reverse
 from django.test import TestCase
 
+from subscribers.forms import OptOutRequestForm
 from subscribers.models import Subscriber
 from subscribers.utils import create_secure_link
 
@@ -45,6 +47,38 @@ class RegisterEmailViewTest(TestCase):
         self.assertEqual(new_user.email, test_email_address)
         self.assertIs(new_user.is_active, False)
         self.assertEqual(active_users.count(), 0)
+
+    @patch('subscribers.models.Subscriber.create_and_send_confirmation_email')
+    def test_confirm_email_sent_only_to_new_or_inactive_user(self, mock_send):
+        new_user_email_address = 'newuser@examplemail.com'
+        inactive_user = Subscriber.objects.create(email='inact@supermail.com')
+        active_user = Subscriber.objects.create(
+            email='act@xyz.com',
+            is_active=True
+        )
+
+        # Register the new user
+        self.client.post(
+            reverse('register_new_email'),
+            data={'email': new_user_email_address}
+        )
+        self.assertEqual(mock_send.called, True)
+
+        # Try to re-register an inactive user
+        mock_send.called = False    # To check if request will make it True
+        self.client.post(
+            reverse('register_new_email'),
+            data={'email': inactive_user.email}
+        )
+        self.assertEqual(mock_send.called, True)
+
+        # Try to register an active user
+        mock_send.called = False
+        self.client.post(
+            reverse('register_new_email'),
+            data={'email': active_user.email}
+        )
+        self.assertEqual(mock_send.called, False)
 
 
 class ConfirmEmailPageViewTest(TestCase):
@@ -182,6 +216,37 @@ class UnsubscribeUserViewTest(TestCase):
 
 
 class UnsubscribeUserPageViewTest(TestCase):
+
+    def test_optout_request_page_shows_correct_form(self):
+        response = self.client.get(reverse('optout_request'))
+        self.assertIsInstance(response.context['form'], OptOutRequestForm)
+
+    @patch('subscribers.models.Subscriber.create_and_send_optout_email')
+    def test_request_allowed_only_for_active_user(self, mock_send_optout):
+        active_user = Subscriber.objects.create(email='email1@gmail.com', is_active=True)
+        inactive_user = Subscriber.objects.create(email='email2@gmail.com')
+
+        # The below request will end up calling the patched function
+        response = self.client.post(
+            reverse('optout_request'),
+            data={'email': active_user.email}
+        )
+
+        # ... which makes the `called` variable True
+        self.assertEqual(mock_send_optout.called, True)
+
+        # Reassign back to original value
+        mock_send_optout.called = False
+
+        # The below request will not call the patched function
+        response = self.client.post(
+            reverse('optout_request'),
+            data={'email': inactive_user.email}
+        )
+
+        # ... leaving the `called` variable unchanged
+        self.assertEqual(mock_send_optout.called, False)
+
 
     def test_blocks_if_not_from_referrer(self):
         for res in ['success', 'failed']:
