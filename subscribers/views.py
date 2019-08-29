@@ -1,3 +1,4 @@
+from django.contrib import messages
 from django.db import IntegrityError
 from django.http import HttpResponse
 from django.shortcuts import redirect, render, reverse
@@ -11,6 +12,9 @@ from subscribers.forms import (
     SignupForm
 )
 from subscribers.models import Subscriber
+
+
+BAD_SIGNUP_ERROR_MSG = 'Cannot register the email you entered'
 
 
 class RegisterEmailView(View):
@@ -27,6 +31,7 @@ class RegisterEmailView(View):
             user = Subscriber.objects.get(email=form.instance.email)
 
         if user is None:
+            messages.error(request, BAD_SIGNUP_ERROR_MSG)
             return redirect(reverse('homepage'))
 
         confirmation_email = user.create_and_send_confirmation_email(request)

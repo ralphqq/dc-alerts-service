@@ -18,6 +18,9 @@
   <body>
     <div class="wrap">
       <header class="header">
+        <!-- Page error messages -->
+        {% include 'error_messages_display.html' %}
+
         <div class="container">
           {% block page_navbar %}
           <nav class="navbar navbar-expand-md bg-dark navbar-dark">

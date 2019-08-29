@@ -8,6 +8,7 @@ from django.test import TestCase
 from subscribers.forms import OptOutRequestForm
 from subscribers.models import Subscriber
 from subscribers.utils import create_secure_link
+from subscribers.views import BAD_SIGNUP_ERROR_MSG
 
 
 class RegisterEmailViewTest(TestCase):
@@ -79,6 +80,23 @@ class RegisterEmailViewTest(TestCase):
             data={'email': active_user.email}
         )
         self.assertEqual(mock_send.called, False)
+
+    @patch('django.contrib.messages.error')
+    def test_bad_signup_sends_error_message(self, msg_error):
+        active_user = Subscriber.objects.create(
+            email='a1@dcd.com',
+            is_active=True
+        )
+
+        # Register an already active user
+        self.client.post(
+            reverse('register_new_email'),
+            data={'email': active_user.email}
+        )
+
+        (request, msg), _ = msg_error.call_args
+        self.assertEqual(msg_error.called, True)
+        self.assertEqual(BAD_SIGNUP_ERROR_MSG, msg)
 
 
 class ConfirmEmailPageViewTest(TestCase):
