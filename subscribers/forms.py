@@ -52,3 +52,12 @@ class SignupForm(forms.ModelForm):
                 raise IntegrityError
         except Subscriber.DoesNotExist:
             return super().save()
+
+
+class OptOutRequestForm(forms.Form):
+    email = forms.EmailField(
+        widget=forms.EmailInput(attrs={
+            'placeholder': EMAIL_INPUT_PLACEHOLDER,
+            'class': 'form-control input-lg'
+        })
+    )

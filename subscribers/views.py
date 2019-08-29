@@ -1,24 +1,37 @@
+from django.db import IntegrityError
 from django.http import HttpResponse
 from django.shortcuts import redirect, render, reverse
 from django.views import View
 from django.utils.decorators import method_decorator
 
 from subscribers.decorators import is_from_referrer
+from subscribers.forms import (
+    InactiveSubscriberFound,
+    OptOutRequestForm,
+    SignupForm
+)
 from subscribers.models import Subscriber
 
 
 class RegisterEmailView(View):
 
     def post(self, request):
-        email = request.POST['email_address']
-        new_user = Subscriber.objects.create(email=email.strip())
-        confirmation_email = new_user.create_and_send_confirmation_email(
-            request
-        )
-        confirmation_email.save()
+        user = None
+        try:
+            form = SignupForm(request.POST)
+            if form.is_valid():
+                user = form.save()
+        except IntegrityError:
+            user = None
+        except InactiveSubscriberFound:
+            user = Subscriber.objects.get(email=form.instance.email)
 
+        if user is None:
+            return redirect(reverse('homepage'))
+
+        confirmation_email = user.create_and_send_confirmation_email(request)
         request.session['prev_view'] = 'register_new_email'
-        request.session['new_user_email'] = email.strip()
+        request.session['new_user_email'] = user.email
         return redirect(reverse('confirm_email_page'))
 
 
@@ -35,7 +48,8 @@ class ConfirmEmailPageView(View):
         if new_user_email is not None:
             del request.session['new_user_email']
 
-        return render(request, 
+        return render(
+            request, 
             'subscribers/confirm_email.html',
             {'new_user_email': new_user_email}
         )
@@ -52,8 +66,6 @@ class VerifyEmailView(View):
             user.save()
 
             welcome_email = user.create_and_send_welcome_email(request)
-            welcome_email.save()
-
             return redirect(reverse(
                 'verification_results',
                 kwargs={'results': 'success'}
@@ -89,8 +101,6 @@ class UnsubscribeUserView(View):
             user.save()
 
             goodbye_email = user.create_and_send_goodbye_email(request)
-            goodbye_email.save()
-
             return redirect(reverse(
                 'unsubscribe_results',
                 kwargs={'results': 'success'}
@@ -118,25 +128,30 @@ class UnsubscribeResultsPageView(View ):
 class OptOutRequestPageView(View):
 
     def get(self, request):
-        return render(request, 'subscribers/optout_request.html')
+        return render(
+            request,
+            'subscribers/optout_request.html',
+            {'form': OptOutRequestForm()}
+        )
 
 
     def post(self, request):
+        user = None
         try:
-            email = request.POST['email_address']
-            user = Subscriber.objects.get(email=email.strip())
+            form = OptOutRequestForm(request.POST)
+            if form.is_valid():
+                user = Subscriber.objects.get(email=form.cleaned_data['email'])
         except Subscriber.DoesNotExist:
             user = None
 
         if user is not None and user.is_active:
             # Create and send optout email only to existing active user
             optout_email = user.create_and_send_optout_email(request)
-            optout_email.save()
 
         # Show same instructions to existing and non-existing users 
         # to avoid guessing registered email addresses
         request.session['prev_view'] = 'optout_request'
-        request.session['submitted_email'] = email.strip()
+        request.session['submitted_email'] = form.data.get('email')
         return redirect(reverse('optout_instructions'))
 
 

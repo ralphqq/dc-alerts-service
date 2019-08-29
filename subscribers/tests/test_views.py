@@ -16,7 +16,7 @@ class RegisterEmailViewTest(TestCase):
         test_email_address = 'myemail@example.com'
         response = self.client.post(
             reverse('register_new_email'),
-            data={'email_address': test_email_address}
+            data={'email': test_email_address}
         )
 
         self.assertRedirects(
@@ -37,7 +37,7 @@ class RegisterEmailViewTest(TestCase):
         test_email_address = 'anotheruser@email.com'
         response = self.client.post(
             reverse('register_new_email'),
-            data={'email_address': test_email_address}
+            data={'email': test_email_address}
         )
         new_user = Subscriber.objects.get(email=test_email_address)
         active_users = Subscriber.get_all_active_subscribers()
@@ -65,7 +65,7 @@ class ActivateUserTest(TestCase):
         test_email_address = 'newusernow@email.com'
         response = self.client.post(
             reverse('register_new_email'),
-            data={'email_address': test_email_address}
+            data={'email': test_email_address}
         )
         new_user = Subscriber.objects.get(email=test_email_address)
         request = response.wsgi_request
@@ -95,7 +95,7 @@ class ActivateUserTest(TestCase):
 
         response_1 = self.client.post(
             reverse('register_new_email'),
-            data={'email_address': address_1}
+            data={'email': address_1}
         )
 
         new_user_1 = Subscriber.objects.get(email=address_1)

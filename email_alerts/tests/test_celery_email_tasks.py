@@ -14,7 +14,7 @@ class CeleryTransactionalEmailTasksTest(EmailTestCase):
         test_email_address = 'foo@example.com'
         response = self.client.post(
             reverse('register_new_email'),
-            data={'email_address': test_email_address}
+            data={'email': test_email_address}
         )
         self.assertEqual(send_confirm_email.called, True)
 
@@ -49,7 +49,7 @@ class CeleryTransactionalEmailTasksTest(EmailTestCase):
         # Call the view that requests an optout email
         response = self.client.post(
             reverse('optout_request'),
-            data={'email_address': new_user.email}
+            data={'email': new_user.email}
         )
 
         self.assertEqual(send_optout_email.called, True)

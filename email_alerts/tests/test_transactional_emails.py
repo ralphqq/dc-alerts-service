@@ -23,7 +23,7 @@ class TransactionalEmailTest(EmailTestCase):
         test_email_address = 'foo1@example.com'
         response = self.client.post(
             reverse('register_new_email'),
-            data={'email_address': test_email_address}
+            data={'email': test_email_address}
         )
         msg = mail.outbox[0]
         new_user = Subscriber.objects.get(email=test_email_address)
@@ -103,7 +103,7 @@ class TransactionalEmailTest(EmailTestCase):
         # Request an optout email
         response = self.client.post(
             reverse('optout_request'),
-            data={'email_address': email_address}
+            data={'email': email_address}
         )
 
         # Get the most recent email message

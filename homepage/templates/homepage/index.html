@@ -13,12 +13,13 @@
 
     <form action="{% url 'register_new_email' %}" method="post">
       {% csrf_token %}
-      <p>
-        <input type="email" name="email_address" id="email_input_box" class="form-control input-lg" placeholder="Enter your email address" required>
-      </p>
-      <p>
-        <input type="submit" value="Register">
-      </p>
+      {{ form.email }}
+      {% if form.errors %}
+      <div class="form-group has-error">
+        <span class="help-block">{{ form.email.errors }}</span>
+      </div>
+      {% endif %}
+      <input type="submit" value="Register">
     </form>
   </div>
   <div class="col-md-6">
