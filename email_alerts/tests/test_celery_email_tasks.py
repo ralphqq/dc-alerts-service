@@ -9,7 +9,7 @@ from subscribers.utils import create_secure_link
 
 class CeleryTransactionalEmailTasksTest(EmailTestCase):
 
-    @patch('email_alerts.tasks.send_one_email.delay')
+    @patch('email_alerts.tasks.process_and_send_email.delay')
     def test_signup_triggers_task(self, send_confirm_email):
         test_email_address = 'foo@example.com'
         response = self.client.post(
@@ -19,7 +19,7 @@ class CeleryTransactionalEmailTasksTest(EmailTestCase):
         self.assertEqual(send_confirm_email.called, True)
 
 
-    @patch('email_alerts.tasks.send_one_email.delay')
+    @patch('email_alerts.tasks.process_and_send_email.delay')
     def test_successful_confirm_triggers_sendout(self, send_welcome_email):
         # Create a user and request object
         new_user, request = self.create_user_and_request(
@@ -38,7 +38,7 @@ class CeleryTransactionalEmailTasksTest(EmailTestCase):
         self.assertEqual(send_welcome_email.called, True)
 
 
-    @patch('email_alerts.tasks.send_one_email.delay')
+    @patch('email_alerts.tasks.process_and_send_email.delay')
     def test_optout_request_triggers_sendout(self, send_optout_email):
         # Create and activate a new user
         new_user = Subscriber.objects.create(
@@ -55,7 +55,7 @@ class CeleryTransactionalEmailTasksTest(EmailTestCase):
         self.assertEqual(send_optout_email.called, True)
 
 
-    @patch('email_alerts.tasks.send_one_email.delay')
+    @patch('email_alerts.tasks.process_and_send_email.delay')
     def test_successful_optout_triggers_sendout(self, send_goodbye_email):
         # Create a user and request object
         new_user, request = self.create_user_and_request(

@@ -1,9 +1,12 @@
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, \
+from django.contrib.auth.models import (
+    AbstractBaseUser,
+    BaseUserManager,
     PermissionsMixin
+)
 from django.db import models
 from django.utils import timezone
 
-from email_alerts.utils import process_and_send_email
+from email_alerts.tasks import process_and_send_email
 from subscribers.utils import create_secure_link, get_uid
 from subscribers.tokens import account_activation_token
 
@@ -87,12 +90,13 @@ class Subscriber(AbstractBaseUser, PermissionsMixin):
             subject_line='Please confirm your email address'
         )
 
-        # Send the above email
-        process_and_send_email(
-            email_object=confirmation_email,
-            email_template='email_alerts/confirmation_email.html',
+        confirmation_email.render_message_body(
+            template='email_alerts/confirmation_email.html',
             context={'confirmation_link': confirmation_link}
         )
+
+        # Send the above email
+        process_and_send_email.delay(email_id=confirmation_email.pk)
 
         return confirmation_email
 
@@ -138,14 +142,15 @@ class Subscriber(AbstractBaseUser, PermissionsMixin):
             subject_line='Welcome to DC Alerts!'
         )
 
-        process_and_send_email(
-            email_object=welcome_email,
-            email_template='email_alerts/welcome_email.html',
+        welcome_email.render_message_body(
+            template='email_alerts/welcome_email.html',
             context={
                 'recipient': self,
                 'unsubscribe_link': unsubscribe_link
             }
         )
+
+        process_and_send_email.delay(email_id=welcome_email.pk)
 
         return welcome_email
 
@@ -161,12 +166,12 @@ class Subscriber(AbstractBaseUser, PermissionsMixin):
         goodbye_email = self.transactionalemail_set.create(
             subject_line='You have successfully unsubscribed'
         )
-
-        process_and_send_email(
-            email_object=goodbye_email,
-            email_template='email_alerts/goodbye_email.html',
+        goodbye_email.render_message_body(
+            template='email_alerts/goodbye_email.html',
             context={'recipient': self}
         )
+
+        process_and_send_email.delay(email_id=goodbye_email.pk)
 
         return goodbye_email
 
@@ -190,14 +195,14 @@ class Subscriber(AbstractBaseUser, PermissionsMixin):
         optout_email = self.transactionalemail_set.create(
             subject_line='Unsubscribe from our mailing list'
         )
-
-        process_and_send_email(
-            email_object=optout_email,
-            email_template='email_alerts/optout_email.html',
+        optout_email.render_message_body(
+            template='email_alerts/optout_email.html',
             context={
                 'recipient': self,
                 'optout_link': unsubscribe_link
             }
         )
+
+        process_and_send_email.delay(email_id=optout_email.pk)
 
         return optout_email

@@ -8,20 +8,20 @@ from email_alerts.models import TransactionalEmail
 
 
 @shared_task(bind=True, max_retries=6)
-def send_one_email(self, email_id, subject, body, recipient):
+def process_and_send_email(self, email_id):
     try:
-        email_object = TransactionalEmail.objects.get(pk=email_id)
-        msg = EmailMessage(
-            subject=subject,
-            body=body,
-            to=[recipient]
-        )
+        email_obj = TransactionalEmail.objects.get(pk=email_id)
     except TransactionalEmail.DoesNotExist:
         self.retry(countdown= 2 ** self.request.retries)
+
+    msg = EmailMessage(
+        subject=email_obj.subject_line,
+        body=email_obj.message_body,
+        to=[email_obj.recipient.email]
+    )
     msg.send()
-    email_object.date_sent = timezone.now()
-    email_object.message_body = msg.body
-    email_object.save()
+    email_obj.date_sent = timezone.now()
+    email_obj.save()
 
 
 @task(name='prepare-send-alerts')
