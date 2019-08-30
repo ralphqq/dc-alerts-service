@@ -34,6 +34,14 @@ class CeleryScrapeTasksTest(TransactionTestCase):
 
 
     @patch('scrapers.tasks.CrawlTaskHandler.run_spider')
-    def test_task_runs_dcwd_spider(self, mock_dcwd_crawl):
-        run_dcwd_spider()
+    def test_task_runs_dcwd_spider_and_returns_true(self, mock_dcwd_crawl):
+        result = run_dcwd_spider()
         self.assertEqual(mock_dcwd_crawl.called, True)
+        self.assertEqual(result, True)
+
+
+    @patch('scrapers.tasks.CrawlTaskHandler.run_spider')
+    def test_task_returns_false_if_scrape_fails(self, mock_start_crawl):
+        mock_start_crawl.side_effect = ValueError
+        result = run_dcwd_spider()
+        self.assertEqual(result, False)
