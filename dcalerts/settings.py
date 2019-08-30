@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 
 import os
 
+from celery import signature
 from celery.schedules import crontab   
 from dotenv import load_dotenv
 
@@ -172,7 +173,11 @@ CELERY_TIMEZONE = TIME_ZONE
 # Celery Beat schedule
 CELERY_BEAT_SCHEDULE = {
     'periodic-scraping-schedule': {
-        'task': 'dcwd-spider',
-        'schedule': crontab(minute='*/10')
+        'task': 'dcwd-workflow',
+        'schedule': crontab(minute='*/2'),
+        #'options': {
+            #'queue': 'default',
+            #'link': signature('prepare-alert')
+        #}
     }
 }
