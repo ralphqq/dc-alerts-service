@@ -25,13 +25,18 @@ class EmailModel(models.Model):
 
 
 class EmailAlert(EmailModel):
-    outage = models.OneToOneField(
+    outage = models.ForeignKey(
         'notices.OutageNotice',
         on_delete=models.CASCADE,
-        related_name='email_alert',
+        related_name='email_alerts',
         null=True
     )
-    recipients = models.ManyToManyField('subscribers.Subscriber')
+    recipient = models.ForeignKey(
+        'subscribers.Subscriber',
+        on_delete=models.CASCADE,
+        related_name='email_alerts_received',
+        null=True
+    )
 
 
 class TransactionalEmail(EmailModel):

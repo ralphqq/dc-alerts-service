@@ -1,6 +1,7 @@
 from hashlib import sha256
 import json
 
+from django.apps import apps
 from django.db import models
 from django.utils import timezone
 
@@ -78,3 +79,24 @@ class OutageNotice(models.Model):
     def load_details(self):
         """Returns value in details field as Python list object."""
         return json.loads(self.details)
+
+
+    def create_email_alerts(self):
+        """Creates email alerts for each active user.
+
+        The resulting collection of email alerts will then be 
+        assigned to this instance's email_alerts attribute.
+        """
+        Subscriber = apps.get_model('subscribers', 'Subscriber')
+        active_users = Subscriber.get_all_active_subscribers()
+
+        for user in active_users:
+            alert = self.email_alerts.create(
+                recipient=user,
+                subject_line=self.headline
+            )
+            alert.render_message_body(
+                template='email_alerts/alert.html',
+                context={'recipient': user, 'notice': self}
+            )
+            alert.save()

@@ -1,0 +1,12 @@
+{% extends 'base_email.html' %}
+{% load detailsdict %}
+{% block message_body %}
+DCWD Outage: {{ notice.headline }}
+
+{% for item in notice.load_details %}
+Group: {{ item|get_item:'set_n' }}
+When: {{ item|get_item:'when' }}
+Where: {{ item|get_item:'where' }}
+Why: {{ item|get_item:'why' }}
+{% endfor %}
+{% endblock %}

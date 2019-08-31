@@ -150,31 +150,35 @@ class OutageNoticeAndEmailAlertModelTest(ModelTestCase):
         test_outage_notice.set_notice_id()
         test_outage_notice.save()
 
-        # dummy subscribers
-        sub1 = Subscriber.objects.create(email='sub1@example.com')
-        sub2 = Subscriber.objects.create(email='sub2@example.com')
-
-        # Dummy email alert object
-        fake_email_alert = EmailAlert.objects.create(
-            outage=test_outage_notice,
-            subject_line=f'Alert: {test_outage_notice.headline}',
-            message_body=f'Please note: {test_outage_notice.details}'
+        # dummy active subscribers
+        sub1 = Subscriber.objects.create(
+            email='sub1@example.com',
+            is_active=True
         )
-        fake_email_alert.recipients.set(Subscriber.objects.all())
-        fake_email_alert.save()
+        sub2 = Subscriber.objects.create(
+            email='sub2@example.com',
+            is_active=True
+        )
 
-        self.assertIn(sub1, test_outage_notice.email_alert.recipients.all())
-        self.assertIn(sub2, test_outage_notice.email_alert.recipients.all())
-        self.assertIsNotNone(re.search(
-            test_outage_notice.headline,
-            test_outage_notice.email_alert.subject_line
-        ))
-        for details in test_outage_notice.load_details():
-            for k, v in details.items():
-                self.assertIsNotNone(re.search(
-                    k,
-                    test_outage_notice.email_alert.message_body
-                ))
+        # This Creates two email alerts,
+        # one for each subscriber:
+        test_outage_notice.create_email_alerts()
+
+        self.assertEqual(test_outage_notice.email_alerts.count(), 2)
+
+        for alert in test_outage_notice.email_alerts.all():
+            self.assertIn(alert.recipient, [sub1, sub2])
+            self.assertIsNotNone(re.search(
+                test_outage_notice.headline,
+                alert.subject_line
+            ))
+
+            for details in test_outage_notice.load_details():
+                for key in ['when', 'where', 'why']:
+                    self.assertIn(
+                        details[key],
+                        alert.message_body
+                    )
 
 
 class NoticeDetailsTests(ModelTestCase):
