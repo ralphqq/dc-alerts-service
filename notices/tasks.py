@@ -30,7 +30,7 @@ def run_dcwd_workflow(**kwargs):
         logging.info('Starting DCWD workflow')
         dcwd_workflow()
     except Exception as e:
-        logging.error(f'DCWD Workflow: {e}')
+        logging.info(f'Unable to complete DCWD workflow: {e}')
         return False
     logging.info('Completed DCWD workflow')
     return True
