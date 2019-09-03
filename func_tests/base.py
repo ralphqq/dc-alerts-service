@@ -2,13 +2,14 @@ import os
 import time
 
 from django.contrib.staticfiles.testing import StaticLiveServerTestCase
+from django.test import tag
 from selenium import webdriver
 from selenium.common.exceptions import WebDriverException
 
 
 MAX_WAIT = 3   # seconds
 
-
+@tag('slow')
 class FunctionalTest(StaticLiveServerTestCase):
 
     def setUp(self):
