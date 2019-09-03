@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 
 import os
+import sys
 
 from celery import signature
 from celery.schedules import crontab   
@@ -55,6 +56,11 @@ else:
     EMAIL_HOST_PASSWORD = os.environ.get('TEST_EMAIL_HOST_PASSWORD')
     EMAIL_PORT = int(os.environ.get('TEST_EMAIL_PORT'))
 
+# Settings for building URLs outside the app
+EXTERNAL_URL_SCHEME = os.environ.get('EXTERNAL_URL_SCHEME') or 'http'
+EXTERNAL_URL_HOST = os.environ.get('SITENAME') or 'localhost:8000'
+if 'test' in sys.argv:
+    EXTERNAL_URL_HOST = 'testserver'
 
 # Application definition
 
