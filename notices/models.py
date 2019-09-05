@@ -1,9 +1,11 @@
+from datetime import datetime
 from hashlib import sha256
 import json
 
 from django.apps import apps
 from django.db import models
 from django.utils import timezone
+import pytz
 
 from notices.utils import (
     datetime_as_str,
@@ -128,4 +130,22 @@ class OutageNotice(models.Model):
     def get_pending_notices():
         """Returns all notices with upcoming outage schedules."""
         return OutageNotice.objects.filter(scheduled_for__gt=timezone.now())
-        
+
+
+class OutageDetails(models.Model):
+    notice = models.ForeignKey(
+        'notices.OutageNotice',
+        on_delete=models.CASCADE,
+        related_name='notice_details',
+        null=True
+    )
+    outage_batch = models.CharField(max_length=100)
+    schedule = models.CharField(max_length=560)
+    area = models.TextField()
+    reason = models.TextField()
+    timestamp = models.DateTimeField(
+        default=datetime(1900, 1, 1, tzinfo=pytz.UTC)
+    )
+
+    def __str__(self):
+        return self.schedule
