@@ -31,7 +31,7 @@ class OutageNotice(models.Model):
             self.set_outage_schedules(raw_details)
 
     def __str__(self):
-        return f'<OutageNotice: {self.headline}>'
+        return self.headline
 
     def set_notice_id(self):
         """Helper function to generate unique notice_id.
