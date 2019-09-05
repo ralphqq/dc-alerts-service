@@ -1,5 +1,6 @@
 from datetime import timedelta
 from random import choice
+from unittest import skip
 from unittest.mock import patch
 
 from django.apps import apps
@@ -9,6 +10,7 @@ from django.utils import timezone
 
 from email_alerts.tasks import prepare_and_send_alerts
 from notices.models import OutageNotice
+from notices.tests.utils import create_fake_details
 
 
 class EmailAlertTest(TransactionTestCase):
@@ -75,12 +77,13 @@ class EmailAlertTest(TransactionTestCase):
     @patch('email_alerts.tasks.send_email_alerts')
     def test_bulk_sendout_does_not_run_if_no_unsent(self, mock_send_alerts):
         # Create a single OutageNotice instance
-        payload = self.create_notices_and_users(n_notices=1)
+        payload = self.create_notices_and_users(n_notices=1, n_users=3)
         notice = payload['notices'].first()
+        users = payload['users']
 
         # Make it a sent OutageNotice instance
-        # i.e., the instance's `email_alerts` attribute is not None
-        notice.email_alerts.create()
+        for user in users:
+            user.email_alerts_received.create(outage=notice)
 
         prepare_and_send_alerts(scraper_success=True)
         self.assertEqual(mock_send_alerts.called, False)
@@ -118,19 +121,75 @@ class EmailAlertTest(TransactionTestCase):
             sorted(list(set(alert_recipients)))     # actual recipients
         )
 
-
-    def test_only_unsent_notices_can_trigger_email_alerts(self):
-        payload = self.create_notices_and_users(n_notices=10, n_users=15)
+    @patch('email_alerts.tasks.OutageNotice.create_email_alerts')
+    def test_no_alert_creation_if_no_pending_notice(self, mock_create_alerts):
+        payload = self.create_notices_and_users(n_notices=3, n_users=15)
         notices = payload['notices']
         users = payload['users']
 
-        # Turn two OutageNotice instances into sent notices
-        notice_1 = notices.first()
-        notice_1.email_alerts.create()
-        notice_2 = notices.last()
-        notice_2.email_alerts.create()
+        # Make all notices outdated
+        for n in notices:
+            n.set_outage_schedules([
+                create_fake_details(date_offset=-10)    # 10 days ago
+            ])
+            n.save()
 
-        active_users_count = users.count()
-        unsent_notices_count = notices.filter(email_alerts=None).count()
         processed_notices_count = prepare_and_send_alerts(scraper_success=True)
-        self.assertEqual(unsent_notices_count, processed_notices_count)
+        self.assertIs(mock_create_alerts.called, False)
+        self.assertEqual(processed_notices_count, 0)
+
+
+    def test_only_upcoming_outages_are_sent(self):
+        payload = self.create_notices_and_users(
+            n_notices=5,
+            n_users=10
+        )
+        notices = payload['notices']
+        users = payload['users']
+
+        # Make one of the notices  outdated
+        n = notices.last()
+        n.set_outage_schedules([
+            create_fake_details(date_offset=-10)    # dated 10 days ago
+        ])
+        n.save()
+
+        upcoming_alerts = notices.filter(scheduled_for__gt=timezone.now())
+        processed_notices_count = prepare_and_send_alerts(scraper_success=True)
+
+        # Expected vs actual number of email alerts sent
+        self.assertEqual(
+            upcoming_alerts.count() * users.count(),
+            len(mail.outbox)
+        )
+
+        # Expected vs actual number of notices processed
+        self.assertEqual(
+            upcoming_alerts.count(),
+            processed_notices_count
+        )
+
+        # The outdated notice should not be in any active user's 
+        # alerts received queryset
+        Subscriber = apps.get_model('subscribers', 'Subscriber')
+        for subscriber in Subscriber.objects.filter(is_active=True):
+            self.assertIs(n.is_unsent(subscriber), True)
+
+
+    def test_do_not_send_alerts_to_users_who_already_received_them(self):
+        payload = self.create_notices_and_users(3, 10)
+        notices = payload['notices']
+        users = payload['users']
+
+        # Send an alert to two users
+        n = notices.first()
+        user_1 = users.first()
+        user_1.email_alerts_received.create(outage=n)
+        user_2 = users.last()
+        user_2.email_alerts_received.create(outage=n)
+
+        processed_notices_count = prepare_and_send_alerts(True)
+        self.assertEqual(
+            notices.count() * users.count() - 2,
+            len(mail.outbox)
+        )

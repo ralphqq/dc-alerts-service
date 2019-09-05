@@ -9,6 +9,7 @@ from notices.utils import (
     datetime_as_str,
     get_datetime_from_text
 )
+from subscribers.utils import create_secure_link
 
 
 class OutageNotice(models.Model):
@@ -85,18 +86,46 @@ class OutageNotice(models.Model):
         """Creates email alerts for each active user.
 
         The resulting collection of email alerts will then be 
-        assigned to this instance's email_alerts attribute.
+        assigned to this instance's email_alerts attribute and returned
+        as a list.
         """
-        Subscriber = apps.get_model('subscribers', 'Subscriber')
-        active_users = Subscriber.get_all_active_subscribers()
+        alerts = []
+        for user in OutageNotice.get_all_active_users():
+            if self.is_unsent(user):
+                alert = self.email_alerts.create(
+                    recipient=user,
+                    subject_line=self.headline
+                )
 
-        for user in active_users:
-            alert = self.email_alerts.create(
-                recipient=user,
-                subject_line=self.headline
-            )
-            alert.render_message_body(
-                template='email_alerts/alert.html',
-                context={'recipient': user, 'notice': self}
-            )
-            alert.save()
+                alert.render_message_body(
+                    template='email_alerts/alert.html',
+                    context={
+                        'recipient': user,
+                        'notice': self,
+                        'unsubscribe_link': create_secure_link(
+                            user=user,
+                            viewname='unsubscribe_user'
+                        )
+                    }
+                )
+                alert.save()
+                alerts.append(alert)
+
+        return alerts
+
+    def is_unsent(self, user):
+        """Checks if user has not yet received the alert."""
+        received_alerts = OutageNotice.objects.filter(email_alerts__recipient=user)
+        return self not in received_alerts
+
+    @staticmethod
+    def get_all_active_users():
+        """Wrapper for Subscriber.get_all_active_subscribers()."""
+        Subscriber = apps.get_model('subscribers', 'Subscriber')
+        return Subscriber.get_all_active_subscribers()
+
+    @staticmethod
+    def get_pending_notices():
+        """Returns all notices with upcoming outage schedules."""
+        return OutageNotice.objects.filter(scheduled_for__gt=timezone.now())
+        

@@ -9,25 +9,16 @@ from django.utils import timezone
 from email_alerts.models import EmailAlert
 from notices.models import OutageNotice
 from notices.utils import get_datetime_from_text
+from notices.tests.utils import create_fake_details
 from scrapers.tests.utils import make_fake_id
 from subscribers.models import Subscriber
 
 
 class ModelTestCase(TestCase):
 
-    def make_dummy_details(self, **kwargs):
-        details_for_set = {
-            'set_n': 'SET 1',
-            'when': 'August 26, 2019 at around 5 AM',
-            'where': 'Somewhere',
-            'why': 'Routine maintenance'
-        }
-
-        if kwargs:
-            for k, v in kwargs.items():
-                details_for_set[k] = v
-
-        return details_for_set
+    def make_dummy_details(self, date_offset=None, **kwargs):
+        """Wrapper for utils.create_fake_details()."""
+        return create_fake_details(date_offset, **kwargs)
 
 
 class NewOutageNoticeTest(ModelTestCase):
@@ -141,7 +132,7 @@ class OutageNoticeAndEmailAlertModelTest(ModelTestCase):
             urgency='Emergency',
     source_url='https://www.test.com',
     headline='Test outage notice',
-    details=[self.make_dummy_details()],
+    details=[self.make_dummy_details(date_offset=5)],
     provider='Utility Co., Ltd.',
     service='Water',
     posted_on=timezone.now(),
@@ -254,3 +245,43 @@ class NoticeDetailsTests(ModelTestCase):
         )
 
         self.assertEqual(notice.scheduled_for, sched_1_dt)
+
+
+    def test_can_filter_out_expired_notices(self):
+        # Make an upcoming outage notice
+        n1 = OutageNotice.objects.create(
+            urgency='Emergency',
+            source_url='https://www.test.com',
+            headline='Test outage notice',
+            details=[self.make_dummy_details()],
+            provider='Utility Co., Ltd.',
+            service='Water',
+            posted_on=timezone.now(),
+            scraped_on=timezone.now()
+        )
+        n1.set_notice_id()
+        n1.set_outage_schedules([
+            create_fake_details(date_offset=7) # 7 days later
+        ])
+        n1.save()
+
+        # Make an expired outage notice
+        n2 = OutageNotice.objects.create(
+            urgency='Emergency',
+            source_url='https://www.test.com/123',
+            headline='Test outage notice',
+            details=[self.make_dummy_details()],
+            provider='Utility Co., Ltd.',
+            service='Water',
+            posted_on=timezone.now(),
+            scraped_on=timezone.now()
+        )
+        n2.set_notice_id()
+        n2.set_outage_schedules([
+            create_fake_details(date_offset=-3) # 3 days earlier
+        ])
+        n2.save()
+
+        pending_notices = OutageNotice.get_pending_notices()
+        self.assertEqual(OutageNotice.objects.count(), 2)
+        self.assertEqual(pending_notices.count(), 1)

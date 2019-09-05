@@ -28,17 +28,23 @@ def prepare_and_send_alerts(scraper_success):
         None: if no data is available from scraper
     """
     if scraper_success:
-        new_notices = OutageNotice.objects.filter(email_alerts=None)
-        for notice in new_notices:
-            notice.create_email_alerts()
-            sent_count = send_email_alerts(notice)
+        completed_notices = 0
+        all_unsent_notices = OutageNotice.get_pending_notices()
 
-            logging.info(
-                f'Sent {sent_count} of {notice.email_alerts.count()} '
-                f'for {notice}'
-            )
+        for notice in all_unsent_notices:
+            alerts = notice.create_email_alerts()
 
-        return new_notices.count()
+            if alerts:
+                sent_count = send_email_alerts(alerts)
+                logging.info(
+                    f'Sent {sent_count} of {len(alerts)} '
+                    f'for {notice}'
+                )
+                completed_notices += 1
+            else:
+                logging.info('No alerts created or sent')
+
+        return completed_notices
 
     logging.info('No data obtained from scraper')
     return None

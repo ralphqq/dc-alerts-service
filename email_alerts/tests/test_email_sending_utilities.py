@@ -5,6 +5,7 @@ from django.utils import timezone
 
 from email_alerts.utils import send_email, send_email_alerts
 from notices.models import OutageNotice
+from notices.tests.utils import create_fake_details
 
 
 class EmailSendingFunctionTests(TestCase):
@@ -35,12 +36,7 @@ class EmailSendingFunctionTests(TestCase):
             urgency='Emergency',
     source_url='https://www.test.com',
     headline='Test outage notice',
-    details=[{
-        'set_n': 'A',
-        'when': 'Today',
-        'where': 'Here',
-        'why': 'Just trying out'
-    }],
+    details=[create_fake_details(date_offset=3)],
     provider='Utility Co., Ltd.',
     service='Water',
     posted_on=timezone.now(),
@@ -62,7 +58,7 @@ class EmailSendingFunctionTests(TestCase):
 
         # This Creates two email alerts,
         # one for each subscriber:
-        notice.create_email_alerts()
+        alerts = notice.create_email_alerts()
 
-        sent_count = send_email_alerts(notice)
+        sent_count = send_email_alerts(alerts)
         self.assertEqual(sent_count, notice.email_alerts.count())

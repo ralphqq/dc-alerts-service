@@ -11,8 +11,11 @@ def send_email(email_obj):
     msg.send()
 
 
-def send_email_alerts(notice):
+def send_email_alerts(alerts):
     """Handles bulk send-out of email alerts.
+
+    Args:
+        alerts (list): list of EmailAlert objects
 
     Returns:
         int: the number of emails sent
@@ -25,7 +28,7 @@ def send_email_alerts(notice):
                 body=alert.message_body,
                 to=[alert.recipient.email]
             )
-            for alert in notice.email_alerts.all()
+            for alert in alerts
         ]
         sent_count = connection.send_messages(messages)
     return sent_count
