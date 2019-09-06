@@ -111,10 +111,6 @@ class OutageNotice(models.Model):
             )
             self.scheduled_for = soonest_sched['soonest_sched']
 
-    def load_details(self):
-        """Returns value in details field as Python list object."""
-        return json.loads(self.details)
-
     def create_email_alerts(self):
         """Creates email alerts for each active user.
 
