@@ -32,11 +32,11 @@ class EmailSendingFunctionTests(TestCase):
     def test_send_bulk_email_alerts(self):
         """Tests `email_alerts.utils.send_email_alerts()`."""
         # Dummy outage notice
-        notice = OutageNotice.objects.create(
+        notice = OutageNotice.objects.create_and_set(
             urgency='Emergency',
     source_url='https://www.test.com',
     headline='Test outage notice',
-    details=[create_fake_details(date_offset=3)],
+    raw_details=[create_fake_details(date_offset=3)],
     provider='Utility Co., Ltd.',
     service='Water',
     posted_on=timezone.now(),

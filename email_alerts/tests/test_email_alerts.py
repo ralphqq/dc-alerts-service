@@ -43,21 +43,19 @@ class EmailAlertTest(TransactionTestCase):
             date_offset = timedelta(days=p)
             scheduled_for = timezone.now() + date_offset
 
-            n = OutageNotice.objects.create(
+            n = OutageNotice.objects.create_and_set(
                 urgency=choice(['Scheduled', 'Emergency']),
                 source_url=f'https://www.somedomain.com/notice-{p}/',
                 headline=f'No utility for {p}',
                 provider=choice(['DCWD', 'DLPC']),
                 service=choice(['Water', 'Power']),
-                details=[{
+                raw_details=[{
                     'set_n': 'A',
                     'when': scheduled_for.strftime('%B %d, %Y at %H:%M'),
                     'where': f'Location {p}',
                     'why': 'Reason {p}'
                 }]
             )
-            n.set_notice_id()
-            n.save()
 
         return {
             'notices': OutageNotice.objects.all(),
@@ -129,9 +127,8 @@ class EmailAlertTest(TransactionTestCase):
 
         # Make all notices outdated
         for n in notices:
-            n.set_outage_schedules([
-                create_fake_details(date_offset=-10)    # 10 days ago
-            ])
+            days_ago = timedelta(days=10)
+            n.scheduled_for = timezone.now() - days_ago
             n.save()
 
         processed_notices_count = prepare_and_send_alerts(scraper_success=True)
@@ -149,9 +146,7 @@ class EmailAlertTest(TransactionTestCase):
 
         # Make one of the notices  outdated
         n = notices.last()
-        n.set_outage_schedules([
-            create_fake_details(date_offset=-10)    # dated 10 days ago
-        ])
+        n.scheduled_for = timezone.now() - timedelta(days=10)
         n.save()
 
         upcoming_alerts = notices.filter(scheduled_for__gt=timezone.now())

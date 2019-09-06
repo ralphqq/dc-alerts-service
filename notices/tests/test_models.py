@@ -7,7 +7,7 @@ from django.test import TestCase
 from django.utils import timezone
 
 from email_alerts.models import EmailAlert
-from notices.models import OutageNotice
+from notices.models import OutageDetails, OutageNotice
 from notices.utils import get_datetime_from_text
 from notices.tests.utils import create_fake_details
 from scrapers.tests.utils import make_fake_id
@@ -23,18 +23,76 @@ class ModelTestCase(TestCase):
 
 class NewOutageNoticeTest(ModelTestCase):
 
-    def test_can_save_new_outage_notice(self):
-        test_outage_notice = OutageNotice.objects.create(
+    def test_saving_with_normal_create(self):
+        n = OutageNotice.objects.create(
             urgency='Emergency',
-    source_url='https://www.test.com',
-    headline='Test outage notice',
-    details=[self.make_dummy_details()],
-    provider='Utility Co., Ltd.',
-    service='Water',
-    posted_on=timezone.now(),
-    scraped_on=timezone.now()
+            source_url='https://www.test.com',
+            headline='Test outage notice',
+            provider='Utility Co., Ltd.',
+            service='Water',
+            posted_on=timezone.now()
         )
 
+        # Before further initialization
+        self.assertEqual(OutageNotice.objects.count(), 1)
+        self.assertIs(n.notice_id, '')
+        self.assertEqual(n.details.count(), 0)
+        self.assertEqual(n.scheduled_for.year, 1900)
+        self.assertEqual(n.scraped_on.month, timezone.now().month)
+
+        # Make two outage batches
+        raw_details = [
+            self.make_dummy_details(date_offset=3),
+            self.make_dummy_details(date_offset=5)
+        ]
+
+        # Initialize further
+        n.set_outage_details(raw_details)
+        n.set_notice_id()
+        n.save()
+
+        self.assertIsNot(n.notice_id, '')
+        self.assertEqual(n.details.count(), len(raw_details))
+        self.assertNotEqual(n.scheduled_for.year, 1900)
+        self.assertEqual(n.scraped_on.month, timezone.now().month)
+
+
+    def test_saving_with_custom_create(self):
+        n = OutageNotice.objects.create_and_set(
+            raw_details = [
+                self.make_dummy_details(date_offset=3),
+                self.make_dummy_details(date_offset=5)
+            ],
+            urgency='Emergency',
+            source_url='https://www.test.com',
+            headline='Test outage notice',
+            provider='Utility Co., Ltd.',
+            service='Water',
+            posted_on=timezone.now()
+        )
+        self.assertEqual(OutageNotice.objects.count(), 1)
+        self.assertIsNot(n.notice_id, '')
+        self.assertEqual(n.details.count(), 2)
+        self.assertNotEqual(n.scheduled_for.year, 1900)
+        self.assertEqual(n.scraped_on.month, timezone.now().month)
+
+
+    def test_required_args_for_custom_create(self):
+        with self.assertRaises(TypeError):
+            n = OutageNotice.objects.create_and_set(
+                source_url='https://www.outagestuffinc.com/'
+            )
+
+        with self.assertRaises(TypeError):
+            m = OutageNotice.objects.create_and_set(
+                raw_details=[self.make_dummy_details(date_offset=2)]
+            )
+
+        # Does not raise TypeError
+        p = OutageNotice.objects.create_and_set(
+            raw_details=[self.make_dummy_details(date_offset=3)],
+            source_url='https://www.example-of-outage-notices.com/index.html'
+        )
         self.assertEqual(OutageNotice.objects.count(), 1)
 
 
@@ -43,7 +101,6 @@ class NewOutageNoticeTest(ModelTestCase):
             urgency='Emergency',
     source_url='https://www.test.com',
     headline='Test outage notice',
-    details=[self.make_dummy_details()],
     provider='Utility Co., Ltd.',
     service='Water',
     posted_on=timezone.now(),
@@ -69,7 +126,6 @@ class NewOutageNoticeTest(ModelTestCase):
             urgency='Emergency',
     source_url='https://www.test.com/outage1.html',
     headline='Test outage notice',
-    details=[self.make_dummy_details()],
     provider='Utility Co., Ltd.',
     service='Water',
     posted_on=timezone.now(),
@@ -83,7 +139,6 @@ class NewOutageNoticeTest(ModelTestCase):
             urgency='Emergency',
     source_url='https://www.test.com/outage1.html',
     headline='Test outage notice',
-    details=[self.make_dummy_details()],
     provider='Utility Co., Ltd.',
     service='Water',
     posted_on=timezone.now(),
@@ -101,7 +156,6 @@ class NewOutageNoticeTest(ModelTestCase):
             urgency='Emergency',
     source_url='https://www.test.com/outage2.html',
     headline='Test outage notice',
-    details=[self.make_dummy_details()],
     provider='Utility Co., Ltd.',
     service='Water',
     posted_on=timezone.now(),
@@ -124,22 +178,42 @@ class NewOutageNoticeTest(ModelTestCase):
             duplicate_notice.save()
 
 
+    def test_unique_notice_id_with_custom_create(self):
+        n1 = OutageNotice.objects.create_and_set(
+            raw_details=[self.make_dummy_details(date_offset=5)],
+            source_url='https://outagetoday.com/1'
+        )
+
+        # Another notice with unique source_url
+        n2 = OutageNotice.objects.create_and_set(
+            raw_details=[self.make_dummy_details(date_offset=5)],
+            source_url='https://outagetoday.com/2'
+        )
+
+        with self.assertRaises(IntegrityError):
+            # A notice with the same source_url as n2
+            n2 = OutageNotice.objects.create_and_set(
+                raw_details=[self.make_dummy_details(date_offset=5)],
+                source_url='https://outagetoday.com/2'
+            )
+
+
 class OutageNoticeAndEmailAlertModelTest(ModelTestCase):
 
     def test_relationship_with_email_alert(self):
         # Dummy outage notice
-        test_outage_notice = OutageNotice.objects.create(
+        test_outage_notice = OutageNotice.objects.create_and_set(
+            raw_details=[
+                self.make_dummy_details(date_offset=3),
+                self.make_dummy_details(date_offset=5)
+            ],
             urgency='Emergency',
     source_url='https://www.test.com',
     headline='Test outage notice',
-    details=[self.make_dummy_details(date_offset=5)],
     provider='Utility Co., Ltd.',
     service='Water',
-    posted_on=timezone.now(),
-    scraped_on=timezone.now()
+    posted_on=timezone.now()
         )
-        test_outage_notice.set_notice_id()
-        test_outage_notice.save()
 
         # dummy active subscribers
         sub1 = Subscriber.objects.create(
@@ -164,12 +238,12 @@ class OutageNoticeAndEmailAlertModelTest(ModelTestCase):
                 alert.subject_line
             ))
 
-            for details in test_outage_notice.load_details():
-                for key in ['when', 'where', 'why']:
-                    self.assertIn(
-                        details[key],
-                        alert.message_body
-                    )
+            for item in test_outage_notice.details.all():
+                self.assertIsNot(item.outage_batch, None)
+                self.assertIsNot(item.schedule, None)
+                self.assertIsNot(item.area, None)
+                self.assertIsNot(item.reason, None)
+                self.assertNotEqual(item.timestamp.year, 1900)
 
 
 class NoticeDetailsTests(ModelTestCase):
@@ -187,25 +261,20 @@ class NoticeDetailsTests(ModelTestCase):
             )
         ]
 
-        notice = OutageNotice.objects.create(
+        notice = OutageNotice.objects.create_and_set(
+            raw_details=dummy_details,
             notice_id=make_fake_id(),
             headline='Water outage on Aug 23',
-            source_url='https://www.example.com/waters',
-            details=dummy_details
+            source_url='https://www.example.com/waters'
         )
 
-        self.assertIsInstance(notice.details, str)
-        self.assertIsInstance(notice.load_details(), list)
-        self.assertEqual(len(dummy_details), len(notice.load_details()))
+        self.assertEqual(notice.details.count(), len(dummy_details  ))
+        self.assertIsInstance(notice.details.last(), OutageDetails)
 
+
+class OutageSchedulesTest(ModelTestCase):
 
     def test_notice_gets_soonest_outage_schedule(self):
-        """Test the get_soonest_schedule() method.
-
-        The get_soonest_schedule() method should return 
-        the datetime object of the earliest outage set 
-        scheduled or included in the notice.
-        """
         # Set some arbitrary schedules
         sched_1_str = 'August 26, 2019 8 AM'
         sched_2_str = 'August 26, 2019 9 AM'
@@ -233,15 +302,14 @@ class NoticeDetailsTests(ModelTestCase):
             )
         ]
 
-        notice = OutageNotice.objects.create(
+        notice = OutageNotice.objects.create_and_set(
+            raw_details=dummy_details,
             urgency='Scheduled',
             source_url='https://www.test.com/page-for-this.html',
         headline='Test outage notice',
             provider='Utility Co., Ltd.',
             service='Water',
-            posted_on=timezone.now(),
-            scraped_on=timezone.now(),
-            details=dummy_details
+            posted_on=timezone.now()
         )
 
         self.assertEqual(notice.scheduled_for, sched_1_dt)
@@ -249,38 +317,26 @@ class NoticeDetailsTests(ModelTestCase):
 
     def test_can_filter_out_expired_notices(self):
         # Make an upcoming outage notice
-        n1 = OutageNotice.objects.create(
+        n1 = OutageNotice.objects.create_and_set(
+            raw_details=[self.make_dummy_details(date_offset=3)],
             urgency='Emergency',
             source_url='https://www.test.com',
             headline='Test outage notice',
-            details=[self.make_dummy_details()],
             provider='Utility Co., Ltd.',
             service='Water',
-            posted_on=timezone.now(),
-            scraped_on=timezone.now()
+            posted_on=timezone.now()
         )
-        n1.set_notice_id()
-        n1.set_outage_schedules([
-            create_fake_details(date_offset=7) # 7 days later
-        ])
-        n1.save()
 
         # Make an expired outage notice
-        n2 = OutageNotice.objects.create(
+        n2 = OutageNotice.objects.create_and_set(
+            raw_details=[self.make_dummy_details(date_offset=-3)],
             urgency='Emergency',
             source_url='https://www.test.com/123',
             headline='Test outage notice',
-            details=[self.make_dummy_details()],
             provider='Utility Co., Ltd.',
             service='Water',
-            posted_on=timezone.now(),
-            scraped_on=timezone.now()
+            posted_on=timezone.now()
         )
-        n2.set_notice_id()
-        n2.set_outage_schedules([
-            create_fake_details(date_offset=-3) # 3 days earlier
-        ])
-        n2.save()
 
         pending_notices = OutageNotice.get_pending_notices()
         self.assertEqual(OutageNotice.objects.count(), 2)

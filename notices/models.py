@@ -14,23 +14,43 @@ from notices.utils import (
 from subscribers.utils import create_secure_link
 
 
+class OutageNoticeManager(models.Manager):
+
+    def create_and_set(self, raw_details, source_url, **kwargs):
+        """Creates and initializes an OutageNotice instance.
+
+        Args:
+            raw_details (list): a collection of notice details 
+                dictionaries with the following fields:
+                ('set_n', 'when', 'where', 'why')
+            source_url (str): The URL of the outage notice
+
+        Values for the other fields are passed as keyword arguments.
+        """
+        if raw_details is None or source_url is None:
+            raise TypeError('`raw_details` and `source_url` are required.')
+
+        notice = self.create(source_url=source_url, **kwargs)
+        notice.set_notice_id()
+        notice.set_outage_details(raw_details)
+        notice.save()
+        return notice
+
+
 class OutageNotice(models.Model):
     notice_id = models.CharField(max_length=20, unique=True)
     urgency = models.CharField(max_length=20)
     source_url = models.URLField(max_length=256)
     headline = models.CharField(max_length=180)
-    details = models.TextField()
     provider = models.CharField(max_length=50)
     service = models.CharField(max_length=25)
     posted_on = models.DateTimeField(default=timezone.now)
     scraped_on = models.DateTimeField(default=timezone.now)
-    scheduled_for = models.DateTimeField(null=True)
+    scheduled_for = models.DateTimeField(
+        default=datetime(1900, 1, 1, tzinfo=pytz.UTC)
+    )
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        raw_details = kwargs.get('details')
-        if raw_details is not None:
-            self.set_outage_schedules(raw_details)
+    objects = OutageNoticeManager()
 
     def __str__(self):
         return self.headline
@@ -38,15 +58,17 @@ class OutageNotice(models.Model):
     def set_notice_id(self):
         """Helper function to generate unique notice_id.
 
-        This function makes hash value from self.source_url
-        and assigns first 20 characters of the resulting hex digest to 
+        If self.notice_id is empty, This function makes 
+        hash value from self.source_url and assigns first 20 
+        characters of the resulting hex digest to 
         the variable self.notice_id.
         """
-        h = sha256(self.source_url.encode())
-        self.notice_id = h.hexdigest()[:20]
+        if self.notice_id == '':
+            h = sha256(self.source_url.encode())
+            self.notice_id = h.hexdigest()[:20]
 
-    def set_outage_schedules(self, raw_details):
-        """Extracts schedules and assigns into appropriate fields.
+    def set_outage_details(self, raw_details):
+        """Converts raw details into OutageDetails object.
 
         This method gets dates and times from the 'when' 
         field of each outage set in the raw_details 
@@ -54,35 +76,44 @@ class OutageNotice(models.Model):
 
         The extracted datetime strings are then converted into 
         tz-aware datetime objects with UTC offset which are 
-        then assigned to the 'sched' field of the 
+        then assigned to the `timestamp` field of the 
         corresponding outage set.
-
-        The updated details variable is then dumped into the 
-        notice instance's details field.
-
-        The earliest datetime object is also assigned to the 
-        notice instance's scheduled_for field.
+        
+        Args:
+            raw_details (list): a collection of notice details 
+                dictionaries with the following fields:
+                ('set_n', 'when', 'where', 'why')
         """
-        updated_details = []
-        soonest_sched = None
-
         for item in raw_details:
-            sched = get_datetime_from_text(item.get('when'))
-            item['sched'] = sched
-            updated_details.append(item)
+            try:
+                sched = get_datetime_from_text(item.get('when'))
+                details = OutageDetails.objects.create(
+                    notice=self,
+                    outage_batch=item.get('set_n'),
+                    schedule=item.get('when'),
+                    area=item.get('where'),
+                    reason=item.get('why'),
+                    timestamp=sched
+                )
+            except Exception as e:
+                pass
 
-            if soonest_sched is None or (sched is not None and 
-                sched < soonest_sched):
-                # Assign to temporary variable
-                soonest_sched = sched
+        # Assign the nearest outage schedule to self.scheduled_for
+        self.set_main_schedule()
 
-        self.details = json.dumps(updated_details, default=datetime_as_str)
-        self.scheduled_for = soonest_sched
+    def set_main_schedule(self):
+        """Gets the soonest outage from this notice's details set."""
+        if self.details:
+            soonest_sched = self.details.filter(
+                timestamp__year__gt=1900    # not default value
+            ).aggregate(
+                soonest_sched=models.Min('timestamp')
+            )
+            self.scheduled_for = soonest_sched['soonest_sched']
 
     def load_details(self):
         """Returns value in details field as Python list object."""
         return json.loads(self.details)
-
 
     def create_email_alerts(self):
         """Creates email alerts for each active user.
@@ -136,7 +167,7 @@ class OutageDetails(models.Model):
     notice = models.ForeignKey(
         'notices.OutageNotice',
         on_delete=models.CASCADE,
-        related_name='notice_details',
+        related_name='details',
         null=True
     )
     outage_batch = models.CharField(max_length=100)
