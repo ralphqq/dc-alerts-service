@@ -1,3 +1,4 @@
+from django.db.models import Max, Min
 from django.shortcuts import reverse
 from django.test import TestCase
 from django.utils import timezone
@@ -66,6 +67,20 @@ class HomepageNoticeTableTest(TestCase):
         self.assertIn(self.notices[0], upcoming_notices)
         self.assertIn(self.notices[1], upcoming_notices)
         self.assertNotIn(self.notices[2], upcoming_notices)
+
+
+    def test_chronological_order_of_notices(self):
+        upcoming_notices = self.response.context.get('recent_alerts')
+        soonest_notice = upcoming_notices.first()
+        soonest_sched = upcoming_notices.aggregate(
+            soonest=Min('scheduled_for')
+        ).get('soonest')
+        farthest_notice = upcoming_notices.last()
+        farthest_sched = upcoming_notices.aggregate(
+            farthest=Max('scheduled_for')
+        ).get('farthest')
+        self.assertEqual(soonest_notice.scheduled_for, soonest_sched)
+        self.assertEqual(farthest_notice.scheduled_for, farthest_sched)
 
 
     def test_displays_only_upcoming_notices(self):
