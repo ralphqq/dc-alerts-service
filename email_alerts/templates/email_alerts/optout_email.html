@@ -1,8 +1,16 @@
 {% extends 'base_email.html' %}
-{% block message_body %}
-We've received your request to unsubscribe from DC Alerts. We'll remove your email address {{ recipient.email }} from our mailing list right after you click the link below.
+{% block message_title %}{{ message_title }}{% endblock %}
 
-{{ optout_link }}
+{% block message_body_opening %}
+We've received your request to unsubscribe from DVO Alerts. We'll remove your email address {{ recipient.email }} from our mailing list right after you click the link below.
+{% endblock %}
 
-If you didn't request to opt out of DC Alerts, please ignore this message.
+{% block message_body_intro %}
+<a href="{{ optout_link }}" target="_blank">Unsubscribe me from DVO Alerts</a>
+{% endblock %}
+
+{% block message_body_additional %}
+<tr>
+  <td align="left" style="padding: 20px 0 0 0; font-size: 16px; line-height: 25px; font-family: Helvetica, Arial, sans-serif; color: #666666;" class="padding-copy">If you didn't request to unsubscribe from DVO Alerts, please ignore this message.</td>
+</tr>
 {% endblock %}

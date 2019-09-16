@@ -90,9 +90,12 @@ class Subscriber(AbstractBaseUser, PermissionsMixin):
             subject_line='Please confirm your email address'
         )
 
-        confirmation_email.render_message_body(
+        confirmation_email.render_email_body(
             template='email_alerts/confirmation_email.html',
-            context={'confirmation_link': confirmation_link}
+            context={
+                'confirmation_link': confirmation_link,
+                'message_title': confirmation_email.subject_line
+            }
         )
 
         # Send the above email
@@ -142,11 +145,12 @@ class Subscriber(AbstractBaseUser, PermissionsMixin):
             subject_line='Welcome to DC Alerts!'
         )
 
-        welcome_email.render_message_body(
+        welcome_email.render_email_body(
             template='email_alerts/welcome_email.html',
             context={
                 'recipient': self,
-                'unsubscribe_link': unsubscribe_link
+                'unsubscribe_link': unsubscribe_link,
+                'message_title': welcome_email.subject_line
             }
         )
 
@@ -166,9 +170,12 @@ class Subscriber(AbstractBaseUser, PermissionsMixin):
         goodbye_email = self.transactionalemail_set.create(
             subject_line='You have successfully unsubscribed'
         )
-        goodbye_email.render_message_body(
+        goodbye_email.render_email_body(
             template='email_alerts/goodbye_email.html',
-            context={'recipient': self}
+            context={
+                'recipient': self,
+                'message_title': goodbye_email.subject_line
+            }
         )
 
         process_and_send_email.delay(email_id=goodbye_email.pk)
@@ -195,11 +202,12 @@ class Subscriber(AbstractBaseUser, PermissionsMixin):
         optout_email = self.transactionalemail_set.create(
             subject_line='Unsubscribe from our mailing list'
         )
-        optout_email.render_message_body(
+        optout_email.render_email_body(
             template='email_alerts/optout_email.html',
             context={
                 'recipient': self,
-                'optout_link': unsubscribe_link
+                'optout_link': unsubscribe_link,
+                'message_title': optout_email.subject_line
             }
         )
 

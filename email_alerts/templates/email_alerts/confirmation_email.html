@@ -1,8 +1,17 @@
 {% extends 'base_email.html' %}
-{% block message_body %}
-Thanks for signing up to DC Alerts! Please click the link below to confirm your email address.
 
-{{ confirmation_link }}
+{% block message_title %}{{ message_title }}{% endblock %}
 
-If you didn't register to DC Alerts, please ignore this message.
+{% block message_body_opening %}
+Thanks for signing up to DVO Alerts! Please click the link below to confirm your email address.
+{% endblock %}
+
+{% block message_body_intro %}
+<a href="{{ confirmation_link }}" target="_blank">Confirm my email</a>
+{% endblock %}
+
+{% block message_body_additional %}
+<tr>
+  <td align="left" style="padding: 20px 0 0 0; font-size: 16px; line-height: 25px; font-family: Helvetica, Arial, sans-serif; color: #666666;" class="padding-copy">If you didn't register to DC Alerts, please ignore this message.</td>
+</tr>
 {% endblock %}

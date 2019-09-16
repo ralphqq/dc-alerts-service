@@ -1,0 +1,5 @@
+{% autoescape off %}
+Hi,
+This is only a test plain-text email sent to {{ recipient.email }}.
+Thanks.
+{% endautoescape %}

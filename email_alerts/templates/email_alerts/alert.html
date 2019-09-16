@@ -1,11 +1,32 @@
 {% extends 'base_email.html' %}
-{% block message_body %}
-DCWD Outage: {{ notice.headline }}
+{% block message_title %}{{ notice.headline }}{% endblock %}
 
+{% block message_body_opening %}
+<strong>{{ notice.urgency|title }} {{ notice.service|lower }} interruption: {{ notice.headline }}</strong>
+{% endblock %}
+
+{% block message_body_intro %}
+{{ notice.provider }} has recently announced {{ notice.urgency|lower }} {{ notice.service|lower }} service interruption for {{ notice.scheduled_for|date:'l, F j, Y' }}.
+<br>
+<a href="{{ notice.source_url }}" target="_blank">View official announcement</a>
+{% endblock %}
+
+{% if notice.details.all %}
+{% block message_body_additional %}
+<tr>
+  <td align="left" style="padding: 20px 0 0 0; font-size: 16px; line-height: 25px; font-family: Helvetica, Arial, sans-serif; color: #666666;" class="padding-copy">
+    <strong>Outage Summary</strong>
+  </td>
+</tr>
 {% for item in notice.details.all %}
-Group: {{ item.outage_batch }}
-When: {{ item.schedule }}
-Where: {{ item.area }}
-Why: {{ item.reason }}
+<tr>
+  <td align="left" style="padding: 20px 0 0 0; font-size: 16px; line-height: 25px; font-family: Helvetica, Arial, sans-serif; color: #666666;" class="padding-copy">
+    Group: {{ item.outage_batch }}<br>
+    When: {{ item.schedule }}<br>
+    Where: {{ item.area }}<br>
+    Why: {{ item.reason }}
+  </td>
+</tr>
 {% endfor %}
 {% endblock %}
+{% endif %}

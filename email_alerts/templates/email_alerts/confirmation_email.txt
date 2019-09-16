@@ -1,0 +1,8 @@
+{% extends 'base_email.txt' %}
+{% block message_body %}
+Thanks for signing up to DVO Alerts! Please click the link below to confirm your email address.
+
+{{ confirmation_link }}
+
+If you didn't register to DVO Alerts, please ignore this message.
+{% endblock %}

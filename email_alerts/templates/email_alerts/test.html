@@ -1,5 +1,8 @@
-{% autoescape off %}
-Hi,
-This is only a test email sent to {{ recipient.email }}.
-Thanks.
-{% endautoescape %}
+{% extends 'base_email.html' %}
+{% block message_title %}Test email{% endblock %}
+
+{% block message_body_opening %}Hi,{% endblock %}
+
+{% block message_body_intro %}
+This is only a test HTML email sent to {{ recipient.email }}. Thanks.
+{% endblock %}

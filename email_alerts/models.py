@@ -15,12 +15,18 @@ class EmailModel(models.Model):
     def __str__(self):
         return self.subject_line
 
-    def render_message_body(self, template, context=None):
-        self.message_body = render_to_string(template, context)
-        self.save()
+    def render_email_body(self, template, context=None):
+        """Generates HTML and plain-text email content.
 
-    def render_html_content(self, template, context=None):
+        This method expects the template to have a .html file extension 
+        and that both HTML and plain-text templates have the 
+        same filenames.
+        """
         self.html_content = render_to_string(template, context)
+        self.message_body = render_to_string(
+            template.replace('.html', '.txt'),
+            context
+        )
         self.save()
 
 

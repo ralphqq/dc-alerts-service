@@ -1,0 +1,13 @@
+{% block message_body %}{% endblock %}
+
+{% block email_signature %}
+Best,
+
+The DC Alerts Team
+
+{% if unsubscribe_link %}
+PS: To stop receiving emails from DC Alerts, you may unsubscribe via this link:
+
+{{ unsubscribe_link }}
+{% endif %}
+{% endblock %}

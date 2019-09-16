@@ -15,7 +15,7 @@ class SendEmailTest(EmailTestCase):
             recipient=new_user,
             subject_line='Testing email send-outs'
         )
-        test_email.render_message_body(template='email_alerts/test.html')
+        test_email.render_email_body(template='email_alerts/test.html')
         mail_created_at = test_email.date_sent
         task = process_and_send_email.delay(
             email_id=test_email.pk

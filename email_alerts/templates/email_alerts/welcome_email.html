@@ -1,8 +1,21 @@
 {% extends 'base_email.html' %}
-{% block message_body %}
-You've successfully signed up for DC Alerts. Your email address {{ recipient.email }} has been verified, and we've added you to our mailing list.
+{% block message_title %}{{ message_title }}{% endblock %}
 
+{% block message_body_opening %}
+You've successfully signed up for DVO Alerts. Your email address {{ recipient.email }} has been verified, and we've added you to our mailing list.
+{% endblock %}
+
+{% block message_body_intro %}
 You'll start receiving up-to-date email notifications on water and power outages in your area.
+{% endblock %}
 
-To make sure you don't miss any email updates from DC Alerts, please add us to your address book.
+{% block message_body_additional %}
+<tr>
+  <td align="left" style="padding: 20px 0 0 0; font-size: 16px; line-height: 25px; font-family: Helvetica, Arial, sans-serif; color: #666666;" class="padding-copy">To make sure you don't miss any email updates from DVO Alerts, please click the link below to add us to your address book.</td>
+</tr>
+<tr>
+  <td align="left" style="padding: 20px 0 0 0; font-size: 16px; line-height: 25px; font-family: Helvetica, Arial, sans-serif; color: #666666;" class="padding-copy">
+    <a href="#">Add DVO Alerts as a contact</a>
+  </td>
+</tr>
 {% endblock %}

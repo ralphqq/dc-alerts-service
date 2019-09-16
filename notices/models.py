@@ -126,7 +126,7 @@ class OutageNotice(models.Model):
                     subject_line=self.headline
                 )
 
-                alert.render_message_body(
+                alert.render_email_body(
                     template='email_alerts/alert.html',
                     context={
                         'recipient': user,

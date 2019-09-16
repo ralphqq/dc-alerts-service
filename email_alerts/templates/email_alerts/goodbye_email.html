@@ -1,8 +1,10 @@
 {% extends 'base_email.html' %}
-{% block message_body %}
-You've successfully unsubscribe from DC Alerts. We've removed your email address {{ recipient.email }} from our mailing list.
+{% block message_title %}{{ message_title }}{% endblock %}
 
-From now on, you'll no longer receive any emails from us.
+{% block message_body_opening %}
+You've successfully unsubscribe from DVO Alerts. We've removed your email address {{ recipient.email }} from our mailing list.
+{% endblock %}
 
-Thanks and see you around.
+{% block message_body_intro %}
+From now on, you'll no longer receive any emails from us. Thanks and see you around.
 {% endblock %}

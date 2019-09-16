@@ -16,8 +16,11 @@ class EmailSendingFunctionTests(TestCase):
         user = Subscriber.objects.create(email='user123x123@exampleemail.com')
 
         email_obj = user.transactionalemail_set.create(
-            subject_line='This is only a test',
-            message_body='This is only a test. Please disregard.'
+            subject_line='This is only a test'
+        )
+        email_obj.render_email_body(
+            template='email_alerts/test.html',
+            context={'recipient': user}
         )
 
         send_email(email_obj)

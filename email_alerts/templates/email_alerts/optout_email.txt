@@ -1,0 +1,8 @@
+{% extends 'base_email.txt' %}
+{% block message_body %}
+We've received your request to unsubscribe from DVO Alerts. We'll remove your email address {{ recipient.email }} from our mailing list right after you click the link below.
+
+{{ optout_link }}
+
+If you didn't request to opt out of DVO Alerts, please ignore this message.
+{% endblock %}

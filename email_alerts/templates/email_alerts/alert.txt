@@ -1,0 +1,22 @@
+{% extends 'base_email.txt' %}
+{% block message_body %}
+{{ notice.urgency|title }} {{ notice.service|lower }} interruption: {{ notice.headline }}
+**********
+{{ notice.provider }} has recently announced {{ notice.urgency|lower }} {{ notice.service|lower }} service interruption for {{ notice.scheduled_for|date:'l, F j, Y' }}.
+
+View outage details via this link:
+
+{{ notice.source_url }}
+**********
+{% if notice.details.all %}
+Outage Summary
+
+{% for item in notice.details.all %}
+  Group: {{ item.outage_batch }}
+  When: {{ item.schedule }}
+  Where: {{ item.area }}
+  Why: {{ item.reason }}
+
+{% endfor %}
+{% endif %}
+{% endblock %}
