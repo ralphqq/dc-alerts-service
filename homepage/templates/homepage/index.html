@@ -25,6 +25,7 @@
         <tr>
           <th>Description</th>
           <th>Type</th>
+          <th>Service</th>
           <th>Provider</th>
           <th>Posted</th>
         </tr>
@@ -32,8 +33,9 @@
       <tbody>
         {% for notice in recent_alerts %}
         <tr>
-          <td>{{ notice.description }}</td>
-          <td>{{ notice.outage_type }}</td>
+          <td>{{ notice.headline }}</td>
+          <td>{{ notice.urgency }}</td>
+          <td>{{ notice.service }}</td>
           <td>{{ notice.provider }}</td>
           <td>{{ notice.posted_on }}</td>
         </tr>
