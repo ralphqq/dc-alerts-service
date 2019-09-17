@@ -18,7 +18,7 @@
     <strong>Outage Summary</strong>
   </td>
 </tr>
-{% for item in notice.details.all %}
+{% for item in notice.details.all|dictsort:'outage_batch' %}
 <tr>
   <td align="left" style="padding: 20px 0 0 0; font-size: 16px; line-height: 25px; font-family: Helvetica, Arial, sans-serif; color: #666666;" class="padding-copy">
     Group: {{ item.outage_batch }}<br>

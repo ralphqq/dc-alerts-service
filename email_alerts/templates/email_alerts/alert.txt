@@ -11,7 +11,7 @@ View outage details via this link:
 {% if notice.details.all %}
 Outage Summary
 
-{% for item in notice.details.all %}
+{% for item in notice.details.all|dictsort:'outage_batch' %}
   Group: {{ item.outage_batch }}
   When: {{ item.schedule }}
   Where: {{ item.area }}
