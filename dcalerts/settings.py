@@ -180,10 +180,6 @@ CELERY_TIMEZONE = TIME_ZONE
 CELERY_BEAT_SCHEDULE = {
     'periodic-scraping-schedule': {
         'task': 'dcwd-workflow',
-        'schedule': crontab(minute='*/2'),
-        #'options': {
-            #'queue': 'default',
-            #'link': signature('prepare-alert')
-        #}
+        'schedule': crontab(minute='*/15'),
     }
 }
