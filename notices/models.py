@@ -161,11 +161,10 @@ class OutageNotice(models.Model):
 
     def _make_alert_subject_line(self):
         """Creates a subject line for email alert."""
-        u = self.urgency.title()
         p = self.provider.title()
         s = self.service.title()
         m = emojis.get(s.lower(), emojis['default'])
-        return f'{m} {u} {s} Outage Announcement from {p}'
+        return f'{m} {s} Service Interruption Advisory'
 
 
 class OutageDetails(models.Model):

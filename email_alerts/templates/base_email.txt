@@ -3,8 +3,11 @@
 {% block email_signature %}
 Best,
 
-The DC Alerts Team
+The DVO Alerts Team
 
+**********
+
+DVO Alerts, 29 Lizada St., Davao City, Philippines 8000
 {% if unsubscribe_link %}
 PS: To stop receiving emails from DC Alerts, you may unsubscribe via this link:
 

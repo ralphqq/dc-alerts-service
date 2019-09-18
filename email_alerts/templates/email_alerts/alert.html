@@ -2,31 +2,34 @@
 {% block message_title %}{{ notice.headline }}{% endblock %}
 
 {% block message_body_opening %}
-<strong>{{ notice.urgency|title }} {{ notice.service|lower }} interruption: {{ notice.headline }}</strong>
+<strong>{{ notice.urgency|upper }} {{ notice.service|upper }} SERVICE INTERRUPTION ({{ notice.provider }})</strong>
 {% endblock %}
 
-{% block message_body_intro %}
-{{ notice.provider }} has recently announced {{ notice.urgency|lower }} {{ notice.service|lower }} service interruption for {{ notice.scheduled_for|date:'l, F j, Y' }}.
-<br>
-<a href="{{ notice.source_url }}" target="_blank">View official announcement</a>
-{% endblock %}
+{% block message_body_intro %}{{ notice.headline }}{% endblock %}
 
 {% if notice.details.all %}
 {% block message_body_additional %}
 <tr>
   <td align="left" style="padding: 20px 0 0 0; font-size: 16px; line-height: 25px; font-family: Helvetica, Arial, sans-serif; color: #666666;" class="padding-copy">
-    <strong>Outage Summary</strong>
+    <strong>SERVICE INTERRUPTION SUMMARY</strong>
   </td>
 </tr>
 {% for item in notice.details.all|dictsort:'outage_batch' %}
 <tr>
   <td align="left" style="padding: 20px 0 0 0; font-size: 16px; line-height: 25px; font-family: Helvetica, Arial, sans-serif; color: #666666;" class="padding-copy">
-    Group: {{ item.outage_batch }}<br>
-    When: {{ item.schedule }}<br>
-    Where: {{ item.area }}<br>
-    Why: {{ item.reason }}
+    {{ item.outage_batch }}<br>
+    <ul>
+      <li>WHEN: {{ item.schedule }}</li>
+      <li>WHERE: {{ item.area }}</li>
+      <li>WHY: {{ item.reason }}</li>
+    </ul>
   </td>
 </tr>
 {% endfor %}
+<tr>
+  <td align="left" style="padding: 20px 0 0 0; font-size: 16px; line-height: 25px; font-family: Helvetica, Arial, sans-serif; color: #666666;" class="padding-copy">
+    <a href="{{ notice.source_url }}" target="_blank">View official announcement</a>
+  </td>
+</tr>
 {% endblock %}
 {% endif %}

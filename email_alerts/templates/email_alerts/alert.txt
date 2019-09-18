@@ -1,15 +1,16 @@
 {% extends 'base_email.txt' %}
 {% block message_body %}
-{{ notice.urgency|title }} {{ notice.service|lower }} interruption: {{ notice.headline }}
+{{ notice.urgency|upper }} {{ notice.service|upper }} SERVICE INTERRUPTION ({{ notice.provider }})
 **********
-{{ notice.provider }} has recently announced {{ notice.urgency|lower }} {{ notice.service|lower }} service interruption for {{ notice.scheduled_for|date:'l, F j, Y' }}.
+{{ notice.headline }}
 
 View outage details via this link:
 
 {{ notice.source_url }}
+
 **********
 {% if notice.details.all %}
-Outage Summary
+SERVICE INTERRUPTION SUMMARY
 
 {% for item in notice.details.all|dictsort:'outage_batch' %}
   Group: {{ item.outage_batch }}
