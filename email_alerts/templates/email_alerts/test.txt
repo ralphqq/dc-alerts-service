@@ -1,5 +1,10 @@
 {% autoescape off %}
 Hi,
 This is only a test plain-text email sent to {{ recipient.email }}.
+{% if additional_stuff %}
+{% for item in additional_stuff %}
+{{ item }}
+{% endfor %}
+{% endif %}
 Thanks.
 {% endautoescape %}

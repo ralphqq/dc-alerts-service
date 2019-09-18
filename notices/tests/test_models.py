@@ -233,9 +233,17 @@ class OutageNoticeAndEmailAlertModelTest(ModelTestCase):
 
         for alert in test_outage_notice.email_alerts.all():
             self.assertIn(alert.recipient, [sub1, sub2])
+
+            # Headline text is in plain text content
             self.assertIsNotNone(re.search(
                 test_outage_notice.headline,
-                alert.subject_line
+                alert.message_body
+            ))
+
+            # Headline text is in HTML content
+            self.assertIsNotNone(re.search(
+                test_outage_notice.headline,
+                alert.html_content
             ))
 
             for item in test_outage_notice.details.all():

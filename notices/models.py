@@ -7,6 +7,7 @@ from django.db import models
 from django.utils import timezone
 import pytz
 
+from email_alerts.misc import emojis
 from notices.utils import (
     datetime_as_str,
     get_datetime_from_text
@@ -123,7 +124,7 @@ class OutageNotice(models.Model):
             if self.is_unsent(user):
                 alert = self.email_alerts.create(
                     recipient=user,
-                    subject_line=self.headline
+                    subject_line=self._make_alert_subject_line()
                 )
 
                 alert.render_email_body(
@@ -157,6 +158,14 @@ class OutageNotice(models.Model):
     def get_pending_notices():
         """Returns all notices with upcoming outage schedules."""
         return OutageNotice.objects.filter(scheduled_for__gt=timezone.now())
+
+    def _make_alert_subject_line(self):
+        """Creates a subject line for email alert."""
+        u = self.urgency.title()
+        p = self.provider.title()
+        s = self.service.title()
+        m = emojis.get(s.lower(), emojis['default'])
+        return f'{m} {u} {s} Outage Announcement from {p}'
 
 
 class OutageDetails(models.Model):
