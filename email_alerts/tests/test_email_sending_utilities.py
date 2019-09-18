@@ -29,6 +29,7 @@ class EmailSendingFunctionTests(TestCase):
         msg = mail.outbox[0]
         self.assertEqual(msg.subject, email_obj.subject_line)
         self.assertEqual(msg.body, email_obj.message_body)
+        self.assertEqual(msg.alternatives[0][0], email_obj.html_content)
         self.assertIn(user.email, msg.recipients())
 
 

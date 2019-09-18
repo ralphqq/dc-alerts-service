@@ -32,6 +32,7 @@ class TransactionalEmailTest(EmailTestCase):
         self.assertSequenceEqual(msg.recipients(), [new_user.email])
         self.assertEqual(msg.subject, 'Please confirm your email address')
         self.assertIsNotNone(url_re.search(msg.body))
+        self.assertIsNotNone(url_re.search(msg.alternatives[0][0]))
 
     @override_settings(
         CELERY_TASK_EAGER_PROPAGATES=True,
@@ -58,6 +59,7 @@ class TransactionalEmailTest(EmailTestCase):
         self.assertSequenceEqual(msg.recipients(), [user.email])
         self.assertEqual(msg.subject, 'Welcome to DC Alerts!')
         self.assertIn(user.email, msg.body)
+        self.assertIn(user.email, msg.alternatives[0][0])
 
     @override_settings(
         CELERY_TASK_EAGER_PROPAGATES=True,
@@ -88,6 +90,7 @@ class TransactionalEmailTest(EmailTestCase):
         self.assertSequenceEqual(msg.recipients(), [user.email])
         self.assertEqual(msg.subject, 'You have successfully unsubscribed')
         self.assertIn(user.email, msg.body)
+        self.assertIn(user.email, msg.alternatives[0][0])
 
     @override_settings(
         CELERY_TASK_EAGER_PROPAGATES=True,
@@ -113,4 +116,6 @@ class TransactionalEmailTest(EmailTestCase):
         self.assertSequenceEqual(msg.recipients(), [user.email])
         self.assertEqual(msg.subject, 'Unsubscribe from our mailing list')
         self.assertIn(user.email, msg.body)
+        self.assertIn(user.email, msg.alternatives[0][0])
         self.assertIsNotNone(url_re.search(msg.body))
+        self.assertIsNotNone(url_re.search(msg.alternatives[0][0]))
