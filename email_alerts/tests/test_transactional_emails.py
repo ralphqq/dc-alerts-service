@@ -5,6 +5,7 @@ from django.core import mail
 from django.shortcuts import reverse
 from django.test.utils import override_settings
 
+from email_alerts.misc import message_components as msg_comp
 from email_alerts.models import TransactionalEmail
 from email_alerts.tests.base_test_setup import EmailTestCase
 from subscribers.models import Subscriber
@@ -30,7 +31,7 @@ class TransactionalEmailTest(EmailTestCase):
 
         self.assertEqual(len(mail.outbox), 1)
         self.assertSequenceEqual(msg.recipients(), [new_user.email])
-        self.assertEqual(msg.subject, 'Please confirm your email address')
+        self.assertEqual(msg.subject, msg_comp['confirm']['subject'])
         self.assertIsNotNone(url_re.search(msg.body))
         self.assertIsNotNone(url_re.search(msg.alternatives[0][0]))
 
@@ -57,7 +58,7 @@ class TransactionalEmailTest(EmailTestCase):
 
         # Check if msg has correct details
         self.assertSequenceEqual(msg.recipients(), [user.email])
-        self.assertEqual(msg.subject, 'Welcome to DC Alerts!')
+        self.assertEqual(msg.subject, msg_comp['welcome']['subject'])
         self.assertIn(user.email, msg.body)
         self.assertIn(user.email, msg.alternatives[0][0])
 
@@ -88,7 +89,7 @@ class TransactionalEmailTest(EmailTestCase):
 
         # Check if msg has correct details
         self.assertSequenceEqual(msg.recipients(), [user.email])
-        self.assertEqual(msg.subject, 'You have successfully unsubscribed')
+        self.assertEqual(msg.subject, msg_comp['goodbye']['subject'])
         self.assertIn(user.email, msg.body)
         self.assertIn(user.email, msg.alternatives[0][0])
 
@@ -114,7 +115,7 @@ class TransactionalEmailTest(EmailTestCase):
 
         # Check if msg has correct details
         self.assertSequenceEqual(msg.recipients(), [user.email])
-        self.assertEqual(msg.subject, 'Unsubscribe from our mailing list')
+        self.assertEqual(msg.subject, msg_comp['optout']['subject'])
         self.assertIn(user.email, msg.body)
         self.assertIn(user.email, msg.alternatives[0][0])
         self.assertIsNotNone(url_re.search(msg.body))

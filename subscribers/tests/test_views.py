@@ -49,7 +49,7 @@ class RegisterEmailViewTest(TestCase):
         self.assertIs(new_user.is_active, False)
         self.assertEqual(active_users.count(), 0)
 
-    @patch('subscribers.models.Subscriber.create_and_send_confirmation_email')
+    @patch('subscribers.models.Subscriber.send_transactional_email')
     def test_confirm_email_sent_only_to_new_or_inactive_user(self, mock_send):
         new_user_email_address = 'newuser@examplemail.com'
         inactive_user = Subscriber.objects.create(email='inact@supermail.com')
@@ -239,7 +239,7 @@ class UnsubscribeUserPageViewTest(TestCase):
         response = self.client.get(reverse('optout_request'))
         self.assertIsInstance(response.context['form'], OptOutRequestForm)
 
-    @patch('subscribers.models.Subscriber.create_and_send_optout_email')
+    @patch('subscribers.models.Subscriber.send_transactional_email')
     def test_request_allowed_only_for_active_user(self, mock_send_optout):
         active_user = Subscriber.objects.create(email='email1@gmail.com', is_active=True)
         inactive_user = Subscriber.objects.create(email='email2@gmail.com')

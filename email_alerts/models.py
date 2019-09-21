@@ -51,3 +51,4 @@ class TransactionalEmail(EmailModel):
         on_delete=models.CASCADE,
         null=True
     )
+    message_type = models.CharField(max_length=20, null=True)

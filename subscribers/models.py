@@ -6,6 +6,7 @@ from django.contrib.auth.models import (
 from django.db import models
 from django.utils import timezone
 
+from email_alerts.misc import message_components
 from email_alerts.tasks import process_and_send_email
 from subscribers.utils import create_secure_link, get_uid
 from subscribers.tokens import account_activation_token
@@ -54,10 +55,8 @@ class Subscriber(AbstractBaseUser, PermissionsMixin):
     USERNAME_FIELD = 'email'
     objects = SubscriberManager()
 
-
     def __str__(self):
         return self.email
-
 
     @staticmethod
     def get_all_active_subscribers():
@@ -69,42 +68,63 @@ class Subscriber(AbstractBaseUser, PermissionsMixin):
         """
         return Subscriber.objects.filter(is_active=True)
 
+    def send_transactional_email(self, request=None, message_type=''):
+        """Creates transactional message of given type and sends it to user.
 
-    def create_and_send_confirmation_email(self, request):
-        """Creates and sends an email containing confirmation link.
+        Args:
+            request (Request object): the request passed to the view 
+                that called this function.
+            message_type (str): the type of transactional message to 
+                create and send; can be one of:
+                * 'confirm'
+                * 'welcome'
+                * 'optout'
+                * 'goodbye'
 
         Returns:
-            TransactionalEmail object: the confirmation email object
+            TransactionalEmail object
         """
+        if message_type not in message_components:
+            raise TypeError(f'{message_type} is not a valid message type.')
 
-        # Create the confirmation URL
-        confirmation_link = create_secure_link(
-            request=request,
-            user=self,
-            viewname='verify_email',
-            external=True
+        # Create and initialize the transactional email object
+        components = message_components[message_type]
+        email_obj = self.transactionalemail_set.create(
+            subject_line=components['subject'],
+            message_type=message_type
         )
 
-        # Create the account confirmation email object
-        confirmation_email = self.transactionalemail_set.create(
-            subject_line='Please confirm your email address'
+        # Define the template context
+        context = {}
+        context['message_title'] = email_obj.subject_line
+        if message_type == 'goodbye':
+            context['recipient'] = self
+        else:
+            secure_link = create_secure_link(
+                request=request,
+                user=self,
+                viewname=components['target_view'],
+                external=True
+            )
+            if message_type == 'confirm':
+                context['confirmation_link'] = secure_link
+            elif message_type == 'welcome':
+                context['recipient'] = self
+                context['unsubscribe_link'] = secure_link
+            elif message_type == 'optout':
+                context['recipient'] = self
+                context['optout_link'] = secure_link
+
+        # Render the email body and HTML content
+        email_obj.render_email_body(
+            template=components['template'],
+            context=context if context else None
         )
 
-        confirmation_email.render_email_body(
-            template='email_alerts/confirmation_email.html',
-            context={
-                'confirmation_link': confirmation_link,
-                'message_title': confirmation_email.subject_line
-            }
-        )
+        # Send the email
+        process_and_send_email.delay(email_id=email_obj.pk)
+        return email_obj
 
-        # Send the above email
-        process_and_send_email.delay(email_id=confirmation_email.pk)
-
-        return confirmation_email
-
-
-    @staticmethod
     def verify_secure_link(uid, token):
         """Checks if uid and token point to a valid user.
 
@@ -123,94 +143,3 @@ class Subscriber(AbstractBaseUser, PermissionsMixin):
             return user
 
         return None
-
-
-    def create_and_send_welcome_email(self, request):
-        """Creates and sends out welcome email to user.
-
-        The email is sent once a user successfully verifies her email 
-        address.
-
-        Returns:
-            TransactionalEmail object: the welcome email object
-        """
-        unsubscribe_link = create_secure_link(
-            request=request,
-            user=self,
-            viewname='unsubscribe_user',
-            external=True
-        )
-
-        welcome_email = self.transactionalemail_set.create(
-            subject_line='Welcome to DC Alerts!'
-        )
-
-        welcome_email.render_email_body(
-            template='email_alerts/welcome_email.html',
-            context={
-                'recipient': self,
-                'unsubscribe_link': unsubscribe_link,
-                'message_title': welcome_email.subject_line
-            }
-        )
-
-        process_and_send_email.delay(email_id=welcome_email.pk)
-
-        return welcome_email
-
-
-    def create_and_send_goodbye_email(self, request):
-        """Creates and sends out goodbye email to user.
-
-        This email is sent after a user successfully unsubscribes.
-
-        Returns:
-            TransactionalEmail object: the goodbye email object
-        """
-        goodbye_email = self.transactionalemail_set.create(
-            subject_line='You have successfully unsubscribed'
-        )
-        goodbye_email.render_email_body(
-            template='email_alerts/goodbye_email.html',
-            context={
-                'recipient': self,
-                'message_title': goodbye_email.subject_line
-            }
-        )
-
-        process_and_send_email.delay(email_id=goodbye_email.pk)
-
-        return goodbye_email
-
-
-    def create_and_send_optout_email(self, request):
-        """Creates and sends out unsubscribe email to user.
-
-        The email is sent after a user requests an unsubscribe email 
-        from the optout page.
-
-        Returns:
-            TransactionalEmail object: the unsubscribe email object
-        """
-        unsubscribe_link = create_secure_link(
-            request=request,
-            user=self,
-            viewname='unsubscribe_user',
-            external=True
-        )
-
-        optout_email = self.transactionalemail_set.create(
-            subject_line='Unsubscribe from our mailing list'
-        )
-        optout_email.render_email_body(
-            template='email_alerts/optout_email.html',
-            context={
-                'recipient': self,
-                'optout_link': unsubscribe_link,
-                'message_title': optout_email.subject_line
-            }
-        )
-
-        process_and_send_email.delay(email_id=optout_email.pk)
-
-        return optout_email

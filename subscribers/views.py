@@ -34,7 +34,7 @@ class RegisterEmailView(View):
             messages.error(request, BAD_SIGNUP_ERROR_MSG)
             return redirect(reverse('homepage'))
 
-        confirmation_email = user.create_and_send_confirmation_email(request)
+        user.send_transactional_email(request, 'confirm')
         request.session['prev_view'] = 'register_new_email'
         request.session['new_user_email'] = user.email
         return redirect(reverse('confirm_email_page'))
@@ -69,13 +69,11 @@ class VerifyEmailView(View):
         if user is not None:
             user.is_active = True
             user.save()
-
-            welcome_email = user.create_and_send_welcome_email(request)
+            user.send_transactional_email(request, 'welcome')
             return redirect(reverse(
                 'verification_results',
                 kwargs={'results': 'success'}
             ))
-
         else:
             return redirect(reverse(
                 'verification_results',
@@ -105,7 +103,7 @@ class UnsubscribeUserView(View):
             user.is_active = False
             user.save()
 
-            goodbye_email = user.create_and_send_goodbye_email(request)
+            user.send_transactional_email(request, 'goodbye')
             return redirect(reverse(
                 'unsubscribe_results',
                 kwargs={'results': 'success'}
@@ -151,9 +149,9 @@ class OptOutRequestPageView(View):
 
         if user is not None and user.is_active:
             # Create and send optout email only to existing active user
-            optout_email = user.create_and_send_optout_email(request)
+            user.send_transactional_email(request, 'optout')
 
-        # Show same instructions to existing and non-existing users 
+        # But show same instructions to existing and non-existing users 
         # to avoid guessing registered email addresses
         request.session['prev_view'] = 'optout_request'
         request.session['submitted_email'] = form.data.get('email')
