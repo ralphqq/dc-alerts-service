@@ -54,6 +54,7 @@ class NewOutageNoticeTest(ModelTestCase):
         self.assertIsNot(n.notice_id, '')
         self.assertEqual(n.details.count(), len(raw_details))
         self.assertNotEqual(n.scheduled_for.year, 1900)
+        self.assertNotEqual(n.scheduled_until.year, 1900)
         self.assertEqual(n.scraped_on.month, timezone.now().month)
 
 
@@ -74,6 +75,7 @@ class NewOutageNoticeTest(ModelTestCase):
         self.assertIsNot(n.notice_id, '')
         self.assertEqual(n.details.count(), 2)
         self.assertNotEqual(n.scheduled_for.year, 1900)
+        self.assertNotEqual(n.scheduled_until.year, 1900)
         self.assertEqual(n.scraped_on.month, timezone.now().month)
 
 
@@ -282,7 +284,7 @@ class NoticeDetailsTests(ModelTestCase):
 
 class OutageSchedulesTest(ModelTestCase):
 
-    def test_notice_gets_soonest_outage_schedule(self):
+    def test_notice_gets_soonest_and_farthest_schedules(self):
         # Set some arbitrary schedules
         sched_1_str = 'August 26, 2019 8 AM'
         sched_2_str = 'August 26, 2019 9 AM'
@@ -320,7 +322,12 @@ class OutageSchedulesTest(ModelTestCase):
             posted_on=timezone.now()
         )
 
+        self.assertGreaterEqual(
+            notice.scheduled_until,
+            notice.scheduled_for
+        )
         self.assertEqual(notice.scheduled_for, sched_1_dt)
+        self.assertEqual(notice.scheduled_until, sched_3_dt)
 
 
     def test_can_filter_out_expired_notices(self):
@@ -349,3 +356,51 @@ class OutageSchedulesTest(ModelTestCase):
         pending_notices = OutageNotice.get_pending_notices()
         self.assertEqual(OutageNotice.objects.count(), 2)
         self.assertEqual(pending_notices.count(), 1)
+
+
+    def test_multi_day_outages(self):
+        # A notice with both an expired and 
+        # a pending outage schedule
+        n1 = OutageNotice.objects.create_and_set(
+            raw_details=[
+                self.make_dummy_details(date_offset=-1),    # yesterday
+                self.make_dummy_details(date_offset=1)  # tomorrow
+            ],
+            urgency='Emergency',
+            source_url='https://www.test.com',
+            headline='Test outage notice',
+            provider='Utility Co., Ltd.',
+            service='Water',
+            posted_on=timezone.now()
+        )
+
+        #   A notice whose details have already expired
+        n2 = OutageNotice.objects.create_and_set(
+            raw_details=[
+                self.make_dummy_details(date_offset=-2),    # two days ago
+                self.make_dummy_details(date_offset=-1)  # yesterday
+            ],
+            urgency='Emergency',
+            source_url='https://www.test.com/2',
+            headline='Test outage notice',
+            provider='Utility Co., Ltd.',
+            service='Water',
+            posted_on=timezone.now()
+        )
+
+        #   A notice whose details have not yet expired
+        n3 = OutageNotice.objects.create_and_set(
+            raw_details=[
+                self.make_dummy_details(date_offset=1),    # tomorrow
+                self.make_dummy_details(date_offset=2)  # 2 days from now
+            ],
+            urgency='Emergency',
+            source_url='https://www.test.com/3',
+            headline='Test outage notice',
+            provider='Utility Co., Ltd.',
+            service='Water',
+            posted_on=timezone.now()
+        )
+
+        pending_notices = OutageNotice.get_pending_notices()
+        self.assertEqual(pending_notices.count(), 2)

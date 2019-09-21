@@ -129,6 +129,7 @@ class EmailAlertTest(TransactionTestCase):
         for n in notices:
             days_ago = timedelta(days=10)
             n.scheduled_for = timezone.now() - days_ago
+            n.scheduled_until = timezone.now() - days_ago
             n.save()
 
         processed_notices_count = prepare_and_send_alerts(scraper_success=True)
@@ -147,9 +148,10 @@ class EmailAlertTest(TransactionTestCase):
         # Make one of the notices  outdated
         n = notices.last()
         n.scheduled_for = timezone.now() - timedelta(days=10)
+        n.scheduled_until = timezone.now() - timedelta(days=10)
         n.save()
 
-        upcoming_alerts = notices.filter(scheduled_for__gt=timezone.now())
+        upcoming_alerts = notices.filter(scheduled_until__gt=timezone.now())
         processed_notices_count = prepare_and_send_alerts(scraper_success=True)
 
         # Expected vs actual number of email alerts sent

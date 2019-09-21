@@ -50,6 +50,9 @@ class OutageNotice(models.Model):
     scheduled_for = models.DateTimeField(
         default=datetime(1900, 1, 1, tzinfo=pytz.UTC)
     )
+    scheduled_until = models.DateTimeField(
+        default=datetime(1900, 1, 1, tzinfo=pytz.UTC)
+    )
 
     objects = OutageNoticeManager()
 
@@ -79,7 +82,7 @@ class OutageNotice(models.Model):
         tz-aware datetime objects with UTC offset which are 
         then assigned to the `timestamp` field of the 
         corresponding outage set.
-        
+
         Args:
             raw_details (list): a collection of notice details 
                 dictionaries with the following fields:
@@ -99,18 +102,22 @@ class OutageNotice(models.Model):
             except Exception as e:
                 pass
 
-        # Assign the nearest outage schedule to self.scheduled_for
+        # Assign the nearest and farthest schedules 
+        # to `scheduled_for` and `scheduled_until` 
+        # attributes of this instance
         self.set_main_schedule()
 
     def set_main_schedule(self):
-        """Gets the soonest outage from this notice's details set."""
+        """Gets the soonest and farthest outage schedules."""
         if self.details:
-            soonest_sched = self.details.filter(
+            main_schedules = self.details.filter(
                 timestamp__year__gt=1900    # not default value
             ).aggregate(
-                soonest_sched=models.Min('timestamp')
+                soonest_sched=models.Min('timestamp'),
+                farthest_sched=models.Max('timestamp')
             )
-            self.scheduled_for = soonest_sched['soonest_sched']
+            self.scheduled_for = main_schedules['soonest_sched']
+            self.scheduled_until = main_schedules['farthest_sched']
 
     def create_email_alerts(self):
         """Creates email alerts for each active user.
@@ -156,8 +163,8 @@ class OutageNotice(models.Model):
 
     @staticmethod
     def get_pending_notices():
-        """Returns all notices with upcoming outage schedules."""
-        return OutageNotice.objects.filter(scheduled_for__gt=timezone.now())
+        """Returns notices with upcoming or ongoing schedules."""
+        return OutageNotice.objects.filter(scheduled_until__gt=timezone.now())
 
     def _make_alert_subject_line(self):
         """Creates a subject line for email alert."""
