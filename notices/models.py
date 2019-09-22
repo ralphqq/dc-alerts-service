@@ -129,11 +129,8 @@ class OutageNotice(models.Model):
         alerts = []
         for user in OutageNotice.get_all_active_users():
             if self.is_unsent(user):
-                alert = self.email_alerts.create(
-                    recipient=user,
-                    subject_line=self._make_alert_subject_line()
-                )
-
+                alert = self.email_alerts.create(recipient=user)
+                alert.set_alert_subject_line(notice=self)
                 alert.render_email_body(
                     template='email_alerts/alert.html',
                     context={
@@ -165,13 +162,6 @@ class OutageNotice(models.Model):
     def get_pending_notices():
         """Returns notices with upcoming or ongoing schedules."""
         return OutageNotice.objects.filter(scheduled_until__gt=timezone.now())
-
-    def _make_alert_subject_line(self):
-        """Creates a subject line for email alert."""
-        p = self.provider.title()
-        s = self.service.title()
-        m = emojis.get(s.lower(), emojis['default'])
-        return f'{m} {s} Service Interruption Advisory'
 
 
 class OutageDetails(models.Model):

@@ -190,3 +190,31 @@ class EmailAlertTest(TransactionTestCase):
             notices.count() * users.count() - 2,
             len(mail.outbox)
         )
+
+
+    def test_subject_character_limit(self):
+        payload = self.create_notices_and_users(
+            n_notices=2,
+            n_users=1
+        )
+        notices = payload['notices']
+        n1 = notices[0]
+        n2 = notices[1]
+
+        # Modify headline to make email alert subject 
+        # longer than 50 characters
+        n1.headline = 'This is a very long headline to be trimmed somewhere.'
+        n1.save()
+
+        # Shorten headline to keep subject under 50 characters:
+        n2.headline = 'short'
+        n2.save()
+
+        prepare_and_send_alerts(True)
+        msg1 = mail.outbox[0]
+        msg2 = mail.outbox[1]
+
+        self.assertLessEqual(len(msg1.subject), 50)
+        self.assertLessEqual(len(msg2.subject), 50)
+        self.assertIn('...', msg1.subject)
+        self.assertNotIn('...', msg2.subject)
