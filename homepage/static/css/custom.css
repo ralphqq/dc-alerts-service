@@ -16,3 +16,8 @@ body {
     height: 60px;
     line-height: 60px;
 }
+
+/* navbar logo */
+.navbar-brand {
+    max-width: 30%;
+}

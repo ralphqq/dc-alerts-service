@@ -18,6 +18,14 @@ class NewVisitorTest(FunctionalTest):
         # User visits homepage
         self.browser.get(self.live_server_url)
 
+        # User sees the logo
+        logo = self.wait_for(
+            lambda: self.browser.find_element_by_xpath(
+                '//a[@class="navbar-brand"]/img'
+            )
+        )
+        self.assertEqual(logo.is_displayed(), True)
+
         # User sees the page title and header mention 'Never miss'
         text_to_find = 'Never miss'
         self.assertIn(text_to_find, self.browser.title)

@@ -24,7 +24,9 @@
         <div class="container">
           {% block page_navbar %}
           <nav class="navbar navbar-expand-md bg-dark navbar-dark">
-            <a class="navbar-brand" href="#">DVO Alerts</a>
+            <a class="navbar-brand" href="{% url 'homepage' %}">
+              <img class="img-fluid" src="{% static 'images/logo_transparent.png' %}" width="40" height="40" alt="DVO Alerts">
+            </a>
 
             <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbar" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
               <span class="navbar-toggler-icon"></span>
