@@ -88,3 +88,48 @@ class HomepageNoticeTableTest(TestCase):
         self.assertIn(self.notices[0].headline, html_content)
         self.assertIn(self.notices[1].headline, html_content)
         self.assertNotIn(self.notices[2].headline, html_content)
+
+
+class AboutPageTest(TestCase):
+
+    def test_about_us_page(self):
+        response = self.client.get(reverse('about'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'homepage/about.html')
+
+
+class ContactPageTest(TestCase):
+
+    def test_contact_us_page(self):
+        response = self.client.get(reverse('contact'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'homepage/contact.html')
+
+
+class TermsOfUsePageTest(TestCase):
+
+    def test_terms_of_use_page(self):
+        response = self.client.get(reverse('terms'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'homepage/terms.html')
+
+
+class PrivacyPolicyPageTest(TestCase):
+
+    def test_privacy_policy_page(self):
+        response = self.client.get(reverse('privacy'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'homepage/privacy.html')
+
+
+class SignUpPageTest(TestCase):
+
+    def test_signup_page_uses_correct_template(self):
+        response = self.client.get(reverse('signup'))
+        self.assertEqual(response.status_code, 200)
+        self.assertTemplateUsed(response, 'homepage/signup.html')
+
+
+    def test_signup_page_uses_signup_form(self):
+        response = self.client.get(reverse('signup'))
+        self.assertIsInstance(response.context['form'], SignupForm)

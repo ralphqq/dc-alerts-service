@@ -36,7 +36,7 @@
                   <a class="nav-link" href="{% url 'homepage' %}">Home</a>
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link" href="#">About</a>
+                  <a class="nav-link" href="{% url 'about' %}">About</a>
                 </li>
                 <li class="nav-item">
                   <a class="nav-link" href="{% url 'optout_request' %}">Unsubscribe</a>
@@ -66,8 +66,9 @@
               <div class="col-md-12">
                 {% block page_footer_links %}
                 <ul class="list-inline">
-                  <li><a href="#">Terms of Service</a></li>
-                  <li><a href="#">Privacy Policy</a></li>
+                  <li><a href="{% url 'terms' %}">Terms</a></li>
+                  <li><a href="{% url 'privacy' %}">Privacy</a></li>
+                  <li><a href="{% url 'contact' %}">Contact</a></li>
                 </ul>
                 {% endblock %}
               </div>

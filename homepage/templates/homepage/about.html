@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+
+{% block page_title %}{{ block.super }}About{% endblock %}
+
+{% block page_content %}
+<div class="row">
+  <h1>About DVO Alerts</h1>
+  <div class="col-md-4">
+    <h3>What is DVO Alerts?</h3>
+    <p>DVO Alerts is a free notification service that sends timely email alerts to subscribers about utility outages and disruptions in Davao City. DVO Alerts keeps you up-to-date on:</p>
+    <ul>
+      <li>Water service interruptions from Davao City Water District (DCWD)</li>
+      <li>Power outages from Davao Light and Power Co. (DLPC)</li>
+    </ul>
+    <h3>How does DVO Alertss work?</h3>
+    <p>While DVO Alerts is not officially connected with any of the utility companies it keeps track of, DVO Alerts continuously monitors and correlates outage announcements and information from different online sources. This allows DVO Alerts to deliver reliable and timely notifications to your inbox.</p>
+    <h3>Why sign up to DVO Alerts?</h3>
+    <p>If you're someone who practically live in your email inbox, then DVO Alerts is the ideal way for you to stay in the loop about water and power interruptions in Davao City.</p>
+    <p>Sure, you could sift through your social media feeds for the latest outage advisories, but wouldn't it be more convenient to get notifications straight to your inbox? It's simpler, more organized, has fewer distractions, and fits nicely into your workday.</p>
+    <h4>
+      <a href="{% url 'signup' %}">Stay informed and stay prepared. Sign up for free email alerts.</a>
+    </h4>
+  </div>
+</div>
+{% endblock %}

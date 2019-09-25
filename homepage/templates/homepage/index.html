@@ -18,7 +18,7 @@
     </form>
   </div>
   <div class="col-md-6">
-    <h3>View recent alerts</h3>
+    <h3>View latest alerts</h3>
     {% if recent_alerts %}
     <table class="table table-hover">
       <thead class="thead-dark">
@@ -27,7 +27,6 @@
           <th>Type</th>
           <th>Service</th>
           <th>Provider</th>
-          <th>Posted</th>
         </tr>
       </thead>
       <tbody>
@@ -37,13 +36,12 @@
           <td>{{ notice.urgency }}</td>
           <td>{{ notice.service }}</td>
           <td>{{ notice.provider }}</td>
-          <td>{{ notice.posted_on }}</td>
         </tr>
         {% endfor %}
       </tbody>
     </table>
     {% else %}
-    <p>No recent outage announcements to show.</p>
+    <p>No upcoming outages to show.</p>
     {% endif %}
   </div>
 </div>

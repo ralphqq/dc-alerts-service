@@ -10,11 +10,21 @@ class HomepageView(View):
 
     def get(self, request):
         recent_alerts = OutageNotice.objects.filter(
-            scheduled_for__gt=timezone.now()
+            scheduled_until__gt=timezone.now()
         ).order_by('scheduled_for')
         form = SignupForm()
         return render(
             request,
             'homepage/index.html',
             {'form': form, 'recent_alerts': recent_alerts}
+        )
+
+
+class SignUpView(View):
+
+    def get(self, request):
+        return render(
+            request,
+            'homepage/signup.html',
+            {'form': SignupForm()}
         )

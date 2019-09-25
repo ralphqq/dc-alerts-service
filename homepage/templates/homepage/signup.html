@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block page_title %}{{ block.super }}Sign up and stay prepared{% endblock %}
+
+{% block page_content %}
+<div class="row">
+  <h1>Sign up and stay prepared</h1>
+  <div class="col-md-4">
+    <p>Never miss any water or power outage advisory ever again.</p>
+    <form action="{% url 'register_new_email' %}" method="post">
+      {% csrf_token %}
+      {% include 'email_input_form.html' %}
+      <p><input type="submit" value="Register"></p>
+    </form>
+  </div>
+</div>
+{% endblock %}
