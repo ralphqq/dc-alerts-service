@@ -42,8 +42,11 @@ class OptOutPageTest(FunctionalTest):
         # She hits enter and a page loads asking to click
         # the link in the email we sent
         email_input_box.send_keys(Keys.ENTER)
-        time.sleep(MAX_WAIT)
-        header_text = self.browser.find_element_by_tag_name('h1')
+        header_text = self.wait_for(
+            lambda: self.browser.find_element_by_xpath(
+                '//h1[contains(text(), "Click")]'
+            )
+        )
         self.assertIn(
             'Click the link we sent you',
             header_text.text

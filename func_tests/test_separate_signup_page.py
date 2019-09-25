@@ -54,7 +54,9 @@ class SeparateSignUpPageTest(FunctionalTest):
         # the link in the email we sent
         email_input_box.send_keys(Keys.ENTER)
         header_text = self.wait_for(
-            lambda: self.browser.find_element_by_xpath('//h1[contains(text(), "Confirm")]')
+            lambda: self.browser.find_element_by_xpath(
+                '//h1[contains(text(), "Confirm")]'
+            )
         )
         self.assertIn(
             'Confirm your email',
@@ -111,7 +113,9 @@ class SeparateSignUpPageTest(FunctionalTest):
         # the link in the email we sent.
         email_input_box.send_keys(Keys.ENTER)
         header_text = self.wait_for(
-            lambda: self.browser.find_element_by_xpath('//h1[contains(text(), "Confirm")]')
+            lambda: self.browser.find_element_by_xpath(
+                '//h1[contains(text(), "Confirm")]'
+            )
         )
         self.assertIn(
             'Confirm your email',

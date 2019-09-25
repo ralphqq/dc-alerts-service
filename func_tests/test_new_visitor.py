@@ -38,8 +38,11 @@ class NewVisitorTest(FunctionalTest):
         # She hits enter and a page loads asking to click
         # the link in the email we sent
         email_input_box.send_keys(Keys.ENTER)
-        time.sleep(MAX_WAIT)
-        header_text = self.browser.find_element_by_tag_name('h1')
+        header_text = self.wait_for(
+            lambda: self.browser.find_element_by_xpath(
+                '//h1[contains(text(), "Confirm")]'
+            )
+        )
         self.assertIn(
             'Confirm your email',
             header_text.text
@@ -67,8 +70,9 @@ class NewVisitorTest(FunctionalTest):
         # She hits enter and an error message appears 
         # saying she cannot proceed with the signup.
         email_input_box.send_keys(Keys.ENTER)
-        time.sleep(MAX_WAIT)
-        alert_div = self.browser.find_element_by_xpath('//div[@role="alert"]')
+        alert_div = self.wait_for(
+            lambda: self.browser.find_element_by_xpath('//div[@role="alert"]')
+        )
         self.assertIn(
             BAD_SIGNUP_ERROR_MSG,
             alert_div.text
@@ -91,8 +95,11 @@ class NewVisitorTest(FunctionalTest):
         # He hits enter and a page loads asking to click
         # the link in the email we sent.
         email_input_box.send_keys(Keys.ENTER)
-        time.sleep(MAX_WAIT)
-        header_text = self.browser.find_element_by_tag_name('h1')
+        header_text = self.wait_for(
+            lambda: self.browser.find_element_by_xpath(
+                '//h1[contains(text(), "Confirm")]'
+            )
+        )
         self.assertIn(
             'Confirm your email',
             header_text.text
