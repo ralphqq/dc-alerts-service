@@ -12,15 +12,19 @@ MAX_WAIT = 3   # seconds
 @tag('slow')
 class FunctionalTest(StaticLiveServerTestCase):
 
-    def setUp(self):
-        self.browser = webdriver.Firefox()
+    @classmethod
+    def setUpClass(cls):
+        super().setUpClass()
+        cls.browser = webdriver.Firefox()
         staging_server = os.environ.get('STAGING_SERVER')
         if staging_server:
-            self.live_server_url = f'http://{staging_server}'
+            cls.live_server_url = f'http://{staging_server}'
 
 
-    def tearDown(self):
-        self.browser.quit()
+    @classmethod
+    def tearDownClass(cls):
+        super().tearDownClass()
+        cls.browser.quit()
 
 
     def wait_for(self, fn):
