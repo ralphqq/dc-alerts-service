@@ -8,11 +8,7 @@
 <div class="row">
   <div class="col-md-4">
     <p>Never miss any water or power outage advisory ever again.</p>
-    <form action="{% url 'register_new_email' %}" method="post">
-      {% csrf_token %}
-      {% include 'email_input_form.html' %}
-      <p><input type="submit" value="Register"></p>
-    </form>
+    {% include 'email_input_form.html' %}
   </div>
 </div>
 {% endblock %}

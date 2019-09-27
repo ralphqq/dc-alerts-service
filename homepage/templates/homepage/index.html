@@ -9,12 +9,7 @@
   <div class="col-md-6">
     <h3>Sign up for free email alerts</h3>
     <p>Get notified about upcoming and ongoing utility interruptions in Davao City. Subscribe to our free service now to stay updated and prepared.</p>
-
-    <form action="{% url 'register_new_email' %}" method="post">
-      {% csrf_token %}
-      {% include 'email_input_form.html' %}
-      <p><input type="submit" value="Register"></p>
-    </form>
+    {% include 'email_input_form.html' %}
   </div>
   <div class="col-md-6">
     <h3>View latest alerts</h3>
