@@ -50,3 +50,12 @@ class FunctionalTest(StaticLiveServerTestCase):
                 if time.time() - start_time > MAX_WAIT:
                     raise e
                 time.sleep(0.5)
+
+
+    def indicate_consent(self):
+        """Ticks the consent checkbox if unchecked."""
+        checkbox = self.wait_for(
+            lambda: self.browser.find_element_by_id('user-consent')
+        )
+        if not checkbox.is_selected():
+            checkbox.click()

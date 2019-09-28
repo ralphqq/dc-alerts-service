@@ -1,0 +1,10 @@
+<form action="{% url 'register_new_email' %}" method="post">
+  {% csrf_token %}
+  {% include 'email_input_form.html' %}
+  <div class="form-check">
+    <label class="form-check-label">
+      <input id="user-consent" type="checkbox" class="form-check-input" value="" termsurl="{% url 'terms' %}" policyurl="{% url 'privacy' %}">I have read and agree to DVO Alerts's <a href="{% url 'terms' %}" target="_blank">Terms of Use</a> and <a href="{% url 'privacy' %}" target="_blank">Privacy Policy</a>.
+    </label>
+  </div>
+  <input id="submit-btn" class="btn btn-primary" type="submit" value="Register" disabled>
+</form>

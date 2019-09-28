@@ -29,7 +29,7 @@ class OptOutPageTest(FunctionalTest):
         self.assertIn(text_to_find, header_text)
 
         # She is asked to enter her email address
-        email_input_box = self.browser.find_element_by_id('id_email')
+        email_input_box = self.browser.find_element_by_id('id_email_optout')
         self.assertEqual(
             email_input_box.get_attribute('placeholder'),
             'Enter your email address'

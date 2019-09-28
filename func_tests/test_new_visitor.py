@@ -1,5 +1,4 @@
 import os
-import time
 
 from selenium.webdriver.common.keys import Keys
 
@@ -43,7 +42,11 @@ class NewVisitorTest(FunctionalTest):
         valid_email = SAMPLE_RECIPIENT_EMAIL
         email_input_box.send_keys(valid_email)
 
-        # She hits enter and a page loads asking to click
+        # She indicates her consent by 
+        # clicking the check box
+        self.indicate_consent()
+
+        # She then hits enter and a page loads asking to click
         # the link in the email we sent
         email_input_box.send_keys(Keys.ENTER)
         header_text = self.wait_for(
@@ -75,6 +78,9 @@ class NewVisitorTest(FunctionalTest):
         email_input_box = self.browser.find_element_by_id('id_email')
         email_input_box.send_keys(active_user.email)
 
+        # She expresses her consent to sign up.
+        self.indicate_consent()
+
         # She hits enter and an error message appears 
         # saying she cannot proceed with the signup.
         email_input_box.send_keys(Keys.ENTER)
@@ -100,6 +106,9 @@ class NewVisitorTest(FunctionalTest):
         email_input_box = self.browser.find_element_by_id('id_email')
         email_input_box.send_keys(inactive_user.email)
 
+        # and indicates consent
+        self.indicate_consent()
+
         # He hits enter and a page loads asking to click
         # the link in the email we sent.
         email_input_box.send_keys(Keys.ENTER)
@@ -116,3 +125,58 @@ class NewVisitorTest(FunctionalTest):
         # He also sees the email address he typed.
         body_text = self.browser.find_element_by_tag_name('body').text
         self.assertIn(inactive_user.email, body_text)
+
+
+    def test_can_only_register_if_user_gives_consent(self):
+        # User goes to homepage
+        self.browser.get(self.live_server_url)
+
+        # She submits an email address
+        new_email_address = 'foo@xmail.com'
+        email_input = self.browser.find_element_by_id('id_email')
+        email_input.send_keys(new_email_address)
+
+        # She sees that the Register button is grayed out,
+        # so she doesn't click it.
+        register_btn = self.browser.find_element_by_id('submit-btn')
+        self.assertEqual(register_btn.is_enabled(), False)
+
+        # She tries pressing enter.
+        email_input.send_keys(Keys.ENTER)
+
+        # But receives a helpful alert saying 
+        # that she needs to check the consent box first.
+        alert_div = self.wait_for(
+            lambda: self.browser.find_element_by_id('consent-reminder')
+        )
+        self.wait_for(
+            lambda: self.assertIn(
+                'Please acknowledge',
+                alert_div.text
+            )
+        )
+
+        # Internally, the signup never proceeds.
+        with self.assertRaises(Subscriber.DoesNotExist):
+            Subscriber.objects.get(email=new_email_address)
+
+        # She closes the alert.
+        alert_div.find_element_by_tag_name('button').click()
+
+        # She indicates her consent.
+        self.indicate_consent()
+
+        # She clicks the register button.
+        register_btn.click()
+
+        # A page then loads asking to click
+        # the link in the email we sent.
+        header_text = self.wait_for(
+            lambda: self.browser.find_element_by_xpath(
+                '//h1[contains(text(), "Confirm")]'
+            )
+        )
+        self.assertIn(
+            'Confirm your email',
+            header_text.text
+        )

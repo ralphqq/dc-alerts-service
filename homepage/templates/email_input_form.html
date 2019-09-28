@@ -1,10 +1,6 @@
-<form action="{% url 'register_new_email' %}" method="post">
-  {% csrf_token %}
-  {{ form.email }}
-  {% if form.errors %}
-  <div class="form-group has-error">
-    <span class="help-block">{{ form.email.errors }}</span>
-  </div>
-  {% endif %}
-  <p><input type="submit" value="Register"></p>
-</form>
+{{ form.email }}
+{% if form.errors %}
+<div class="form-group has-error">
+  <span class="help-block">{{ form.email.errors }}</span>
+</div>
+{% endif %}

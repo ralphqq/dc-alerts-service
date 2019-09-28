@@ -58,6 +58,7 @@ class OptOutRequestForm(forms.Form):
     email = forms.EmailField(
         widget=forms.EmailInput(attrs={
             'placeholder': EMAIL_INPUT_PLACEHOLDER,
-            'class': 'form-control input-lg'
+            'class': 'form-control input-lg',
+            'id': 'id_email_optout'
         })
     )
