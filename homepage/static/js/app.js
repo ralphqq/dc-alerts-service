@@ -1,7 +1,10 @@
 // Handling user consent
 
+// simple namespace
+window.dvoAlerts = {};
+
 // Prevent default enter key form submisssion unless user gives consent
-$(function() {
+window.dvoAlerts.toggleEnterKey = function() {
     $('#id_email').on('keydown', function(event) {
         var userConsent = $('#user-consent');
         var hasConsent = userConsent.prop('checked');
@@ -20,13 +23,13 @@ $(function() {
             $('header.header').prepend(htmlAlert);
         }
     });
-})
+};
 
 // Toggle submit button based on consent checkbox
-$(function() {
+window.dvoAlerts.toggleSubmit = function() {
     $('#user-consent').click(function() {
         let = isChecked = this.checked;
         $('#submit-btn').attr('disabled', !isChecked);
         $('#user-consent').prop('checked', isChecked);
     });
-})
+};

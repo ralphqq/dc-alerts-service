@@ -4,8 +4,8 @@ This project is a (soon-to-be-launched) web-based service that sends out email a
 * User management (signup, authentication, and opt-out) with Django
 * Web crawling with multiple Scrapy spiders
 * Asynchronous task handling through Celery and Redis
-* Periodic tasks managed with Celery Beat
-* Unit and integration tests done with unittest and Selenium
+* Periodic background tasks managed with Celery Beat
+* Unit and integration tests done with unittest and Selenium, along with QUnit for JavaScript/jQuery code
 
 ## Environment Variables
 Make sure to supply the appropriate values for the following variables in the `.env` file which is saved in the project root directory:
@@ -38,8 +38,28 @@ When running on local machine, make sure to follow the below steps:
 7. Spin up the Django development server
 
 ## Testing
-Before carrying out the unit and integration tests, make sure to start the Redis server and stop any running Celery workers.
-Also, the tests under the `email_alerts` directory sometimes raise `django.db.utils.OperationalError`. This is most likely because SQLite [ignores the timeout parameter](https://stackoverflow.com/questions/46831783/django-sqlite3-timeout-has-no-effect) when using the shared cache. In case you encounter this, just re-run the tests or restart the Redis server before re-running the tests.
+To test everything under the website's Django and Celery stack:
+```
+$ python manage.py test
+```
+
+To exclude functional tests:
+```
+$ python manage.py test --exclude-tag=slow
+```
+
+To run only the functional tests:
+```
+$ python manage.py test func_tests
+```
+
+To run the JavaScript/jQuery unit tests, open the file `homepage/static/js/tests/test.html` in a browser.
+
+**Notes:**
+
+* Before carrying out the unit and integration tests, make sure to start the Redis server and stop any running Celery workers.
+* Also, the tests under the `email_alerts` directory sometimes raise `django.db.utils.OperationalError`. This is most likely because SQLite [ignores the timeout parameter](https://stackoverflow.com/questions/46831783/django-sqlite3-timeout-has-no-effect) when using the shared cache. In case you encounter this, just re-run the tests or restart the Redis server before re-running the tests.
+* However, this problem does not occur with PostgreSQL as the database.
 
 ## License
 [MIT license](https://opensource.org/licenses/MIT)
