@@ -44,6 +44,5 @@ urlpatterns = [
         TemplateView.as_view(template_name='homepage/privacy.html'),
         name='privacy'
     ),
-    path('signup/', include('subscribers.urls')),
-    path('accounts/', include('subscribers.urls')),
+    path('subscribers/', include('subscribers.urls')),
 ]

@@ -1,3 +1,4 @@
+import re
 from unittest import skip
 from unittest.mock import patch
 
@@ -161,8 +162,9 @@ class ActivateUserTest(TestCase):
             viewname='verify_email',
             external=False
         )
-        fake_token = '77u-31526560950be2792e58'
-        fake_link = f'http://testserver/signup/verify/MQ/{fake_token}'
+
+        # Replace last 5 alphanumeric chars in URL with 'xxxxx'
+        fake_link = re.sub(r'[a-z0-9]{5}$', 'xxxxx', confirmation_link_1)
 
         verification_response = self.client.get(fake_link)
         this_user = Subscriber.objects.get(email=address_1)
