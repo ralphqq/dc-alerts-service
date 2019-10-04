@@ -8,6 +8,7 @@ from django.core import mail
 from django.test import TransactionTestCase
 from django.utils import timezone
 
+from email_alerts.misc import from_address
 from email_alerts.tasks import prepare_and_send_alerts
 from notices.models import OutageNotice
 from notices.tests.utils import create_fake_details
@@ -218,3 +219,19 @@ class EmailAlertTest(TransactionTestCase):
         self.assertLessEqual(len(msg2.subject), 50)
         self.assertIn('...', msg1.subject)
         self.assertNotIn('...', msg2.subject)
+
+
+    def test_alerts_have_correct_from_email(self):
+        payload = self.create_notices_and_users(
+            n_notices=2,
+            n_users=1
+        )
+        notices = payload['notices']
+        n1 = notices[0]
+        n2 = notices[1]
+
+        prepare_and_send_alerts(True)
+        msg1 = mail.outbox[0]
+        msg2 = mail.outbox[1]
+        self.assertEqual(msg1.from_email, from_address['notifications'])
+        self.assertEqual(msg2.from_email, from_address['notifications'])

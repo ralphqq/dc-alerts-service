@@ -1,11 +1,14 @@
 from django.core.mail import get_connection, EmailMultiAlternatives
 
+from email_alerts.misc import from_address
+
 
 def send_email(email_obj):
     """Sends transactional email."""
     msg = EmailMultiAlternatives(
         subject=email_obj.subject_line,
         body=email_obj.message_body,
+        from_email=from_address['notifications'],
         to=[email_obj.recipient.email],
         alternatives=[(email_obj.html_content, 'text/html')]
     )
@@ -27,6 +30,7 @@ def send_email_alerts(alerts):
             EmailMultiAlternatives(
                 subject=alert.subject_line,
                 body=alert.message_body,
+                from_email=from_address['notifications'],
                 to=[alert.recipient.email],
                 alternatives=[(alert.html_content, 'text/html')]
             )

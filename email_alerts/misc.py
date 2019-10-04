@@ -1,6 +1,7 @@
 """
 Constants, functions, and classes that don't fit in other modules.
 """
+import os
 
 # Emojis to be used
 emojis = {
@@ -38,4 +39,10 @@ message_components = {
         'subject': f"{emojis['welcome']} Welcome to DVO Alerts!",
         'target_view': 'unsubscribe_user'
     }
+}
+
+# From email addresses
+from_address = {
+    'admin': os.environ.get('FROM_ADMIN'),
+    'notifications': os.environ.get('FROM_NOTIFICATIONS')
 }
