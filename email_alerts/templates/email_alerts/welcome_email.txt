@@ -6,6 +6,6 @@ You'll start receiving up-to-date email notifications on water and power outages
 
 To make sure you don't miss any email updates from DC Alerts, please add us to your address book via this link:
 
-{{ add_as_contact_link }}
+{{ vcard_link }}
 
 {% endblock %}

@@ -8,7 +8,11 @@ from django.utils import timezone
 
 from email_alerts.misc import message_components
 from email_alerts.tasks import process_and_send_email
-from subscribers.utils import create_secure_link, get_uid
+from subscribers.utils import (
+    create_secure_link,
+    get_external_link_for_static_file,
+    get_uid
+)
 from subscribers.tokens import account_activation_token
 
 
@@ -111,6 +115,9 @@ class Subscriber(AbstractBaseUser, PermissionsMixin):
             elif message_type == 'welcome':
                 context['recipient'] = self
                 context['unsubscribe_link'] = secure_link
+                context['vcard_link'] = get_external_link_for_static_file(
+                    'others/dvoalerts.vcf'
+                )
             elif message_type == 'optout':
                 context['recipient'] = self
                 context['optout_link'] = secure_link

@@ -1,0 +1,10 @@
+BEGIN:VCARD
+VERSION:3.0
+FN;CHARSET=UTF-8:The DVO Alerts Team
+N;CHARSET=UTF-8:;The DVO Alerts Team;;;
+EMAIL;CHARSET=UTF-8;type=WORK,INTERNET:notifications@dvoalerts.me
+ADR;CHARSET=UTF-8;TYPE=HOME:;;Lizada St.\, R. Magsaysay Ave.;Davao City;Davao del Sur;8000;Philippines
+ORG;CHARSET=UTF-8:DVO Alerts
+URL;type=WORK;CHARSET=UTF-8:www.dvoalerts.me
+REV:2019-10-04T06:34:10.538Z
+END:VCARD

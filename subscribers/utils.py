@@ -1,4 +1,5 @@
 from django.conf import settings
+from django.contrib.staticfiles.templatetags.staticfiles import static
 from django.shortcuts import reverse
 from django.utils.encoding import force_bytes, force_text
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
@@ -49,3 +50,15 @@ def create_secure_link(request=None, user=None, viewname='', external=True):
 def get_uid(uidb64):
     """Converts the base64-encoded UID into a string."""
     return force_text(urlsafe_base64_decode(uidb64))
+
+
+def get_external_link_for_static_file(fpath=''):
+    """Generates the absolute URL to a static asset.
+
+    Args:
+        fpath (str): the path to the file, relative to static directory
+    """
+    url_path = static(fpath)
+    url_scheme = settings.EXTERNAL_URL_SCHEME
+    url_host = settings.EXTERNAL_URL_HOST
+    return f'{url_scheme}://{url_host}{url_path}'

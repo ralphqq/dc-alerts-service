@@ -12,7 +12,10 @@ from email_alerts.misc import (
 from email_alerts.models import TransactionalEmail
 from email_alerts.tests.base_test_setup import EmailTestCase
 from subscribers.models import Subscriber
-from subscribers.utils import create_secure_link
+from subscribers.utils import (
+    create_secure_link,
+    get_external_link_for_static_file
+)
 
 
 url_re = re.compile('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+')
@@ -66,6 +69,11 @@ class TransactionalEmailTest(EmailTestCase):
         self.assertIn(user.email, msg.body)
         self.assertEqual(msg.from_email, from_address['notifications'])
         self.assertIn(user.email, msg.alternatives[0][0])
+        self.assertIn(
+            get_external_link_for_static_file('others/dvoalerts.vcf'),
+            msg.alternatives[0][0]
+        )
+
 
     @override_settings(
         CELERY_TASK_EAGER_PROPAGATES=True,

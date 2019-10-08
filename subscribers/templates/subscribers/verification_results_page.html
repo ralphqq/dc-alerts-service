@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block page_title %}
 {% if results == 'success' %}
@@ -21,7 +22,7 @@ Unable to verify your email
   <div class="col-md-4">
     {% if results == 'success' %}
     <p>Congratulations! You've successfully signed up to DC Alerts. You will soon start receiving email notifications on water and power outages in the city.</p>
-    <p>To make sure you don't miss any email updates from DVO Alerts, please <a href="#">add us to your address book</a>.</p>
+    <p>To make sure you don't miss any email updates from DVO Alerts, please <a href="{% static 'others/dvoalerts.vcf' %}">add us to your address book</a>.</p>
     {% else %}
     <p>We're sorry, but we seem to be having problems verifying the email address you registered.</p>
     <p>Please make sure that you've submitted a valid email address or try signing up using a different email account.</p>
