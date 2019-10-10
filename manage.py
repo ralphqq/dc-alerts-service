@@ -5,7 +5,15 @@ import sys
 
 
 def main():
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'dcalerts.settings')
+    default_settings_module = 'dcalerts.settings.development'
+    if len(sys.argv) > 1 and sys.argv[1] == 'test':
+        default_settings_module = 'dcalerts.settings.testing'
+
+    os.environ.setdefault(
+        'DJANGO_SETTINGS_MODULE',
+        default_settings_module
+    )
+
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:

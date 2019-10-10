@@ -4,7 +4,10 @@ import os
 from celery import Celery
 
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'dcalerts.settings')
+os.environ.setdefault(
+    'DJANGO_SETTINGS_MODULE',
+    'dcalerts.settings.development'
+)
 
 app = Celery('dcalerts')
 

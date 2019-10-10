@@ -18,49 +18,15 @@ from celery.schedules import crontab
 from dotenv import load_dotenv
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(
+    __file__
+))))
 
 # Load environment variables from .env file
 load_dotenv(os.path.join(BASE_DIR, '.env'))
 
-
-if 'DJANGO_DEBUG_FALSE' in os.environ:
-    # Production settings
-    DEBUG = False
-    SECRET_KEY = os.environ['DJANGO_SECRET_KEY']
-    ALLOWED_HOSTS = [os.environ['SITENAME']]
-
-    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-    EMAIL_USE_TLS = True  
-    EMAIL_HOST = os.environ.get('EMAIL_HOST')
-    EMAIL_HOST_USER = os.environ.get('EMAIL_HOST_USER')
-    EMAIL_HOST_PASSWORD = os.environ.get('EMAIL_HOST_PASSWORD')
-    EMAIL_PORT = int(os.environ.get('EMAIL_PORT'))
-
-else:
-    # Quick-start development settings - unsuitable for production
-    # See https://docs.djangoproject.com/en/1.11/howto/deployment/checklist/
-
-    # SECURITY WARNING: keep the secret key used in production secret!
-    SECRET_KEY = '4+0!t6$#z^4y!ur2i^2*+&y5t@k84v_7d0(8=_pdz--6-5r%sa'
-
-    # SECURITY WARNING: don't run with debug turned on in production!
-    DEBUG = True
-
-    ALLOWED_HOSTS = ['*']
-
-    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-    EMAIL_USE_TLS = True  
-    EMAIL_HOST = os.environ.get('TEST_EMAIL_HOST')
-    EMAIL_HOST_USER = os.environ.get('TEST_EMAIL_HOST_USER')
-    EMAIL_HOST_PASSWORD = os.environ.get('TEST_EMAIL_HOST_PASSWORD')
-    EMAIL_PORT = int(os.environ.get('TEST_EMAIL_PORT'))
-
-# Settings for building URLs outside the app
-EXTERNAL_URL_SCHEME = os.environ.get('EXTERNAL_URL_SCHEME') or 'http'
-EXTERNAL_URL_HOST = os.environ.get('SITENAME') or 'localhost:8000'
-if 'test' in sys.argv:
-    EXTERNAL_URL_HOST = 'testserver'
+# Indicate if production or not
+PRODUCTION = False
 
 # Application definition
 

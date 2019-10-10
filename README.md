@@ -8,7 +8,7 @@ This project is a (soon-to-be-launched) web-based service that sends out email a
 * Unit and integration tests done with unittest and Selenium, along with QUnit for JavaScript/jQuery code
 
 ## Environment Variables
-Make sure to supply the appropriate values for the following variables in the `.env` file which is saved in the project root directory:
+Make sure to supply the appropriate values for the following variables in the `.env` file which is saved in the project root directory (alternatively, these variables can be set in the terminal as well):
 
 * `DB_USERNAME`: the PostgreSQL username that owns the database used
 * `DB_PASSWORD`: the password corresponding to `DB_USERNAME`

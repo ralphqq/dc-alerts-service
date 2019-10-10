@@ -19,7 +19,11 @@ S_ROOT = os.path.join(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "..")
 if S_ROOT not in sys.path:
     sys.path.append(S_ROOT)
-os.environ['DJANGO_SETTINGS_MODULE'] = 'dcalerts.settings'
+
+os.environ.setdefault(
+    'DJANGO_SETTINGS_MODULE',
+    'dcalerts.settings.development'
+)
 django.setup()
 
 BOT_NAME = 'scrapers'
