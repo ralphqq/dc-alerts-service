@@ -19,3 +19,6 @@ EMAIL_PORT = int(os.environ.get('EMAIL_PORT'))
 # Settings for building URLs outside the app
 EXTERNAL_URL_SCHEME = os.environ['EXTERNAL_URL_SCHEME']
 EXTERNAL_URL_HOST = os.environ['SITENAME']
+
+# Static files
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')

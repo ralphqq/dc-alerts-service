@@ -14,6 +14,7 @@ EMAIL_HOST = os.environ.get('TEST_EMAIL_HOST')
 EMAIL_HOST_USER = os.environ.get('TEST_EMAIL_HOST_USER')
 EMAIL_HOST_PASSWORD = os.environ.get('TEST_EMAIL_HOST_PASSWORD')
 EMAIL_PORT = int(os.environ.get('TEST_EMAIL_PORT'))
+
 # Settings for building URLs outside the app
-EXTERNAL_URL_SCHEME = os.environ.get('EXTERNAL_URL_SCHEME') or 'http'
-EXTERNAL_URL_HOST = os.environ.get('SITENAME') or 'localhost:8000'
+EXTERNAL_URL_SCHEME = 'http'
+EXTERNAL_URL_HOST = 'localhost:8000'
