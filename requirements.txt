@@ -8,13 +8,13 @@ cffi==1.14.4
 constantly==15.1.0
 cryptography==3.3.1
 cssselect==1.1.0
-django==2.2.4
+django==2.2.13
 hyperlink==20.0.1
 idna==3.1
 importlib-metadata==3.3.0 ; python_version < '3.8'
 incremental==17.5.0
 kombu==4.6.11
-lxml==4.6.2
+lxml==4.6.2 ; python_version != '3.4'
 parsel==1.6.0
 psycopg2==2.8.3
 pyasn1-modules==0.2.8
