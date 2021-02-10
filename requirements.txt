@@ -6,12 +6,12 @@ billiard==3.6.3.0
 celery==4.3.0
 cffi==1.14.4
 constantly==15.1.0
-cryptography==3.3.1
+cryptography==3.3.2
 cssselect==1.1.0
 django==2.2.13
-hyperlink==20.0.1
+hyperlink==21.0.0
 idna==3.1
-importlib-metadata==3.3.0 ; python_version < '3.8'
+importlib-metadata==3.4.0 ; python_version < '3.8'
 incremental==17.5.0
 kombu==4.6.11
 lxml==4.6.2 ; python_version != '3.4'
@@ -25,7 +25,7 @@ pyhamcrest==2.0.2
 pyopenssl==20.0.1
 python-dateutil==2.8.0
 python-dotenv==0.10.3
-pytz==2020.5
+pytz==2021.1
 queuelib==1.5.0
 redis==3.3.8
 scrapy==1.7.3
